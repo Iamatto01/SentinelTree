@@ -383,7 +383,7 @@ body.night .field .field-label {
 
 .lead {
     margin: 0;
-    max-width: 58ch;
+    max-width: 80ch;
     color: #5f6874;
     font-size: 1.05rem;
 }
