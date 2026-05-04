@@ -1,13 +1,16 @@
 
+/* Global box-sizing reset */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 body {
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: #E8F1F5; /* Light Mode Background */
+    margin: 0;
+    background: #E8F1F5;
     color: #333;
     transition: background 0.4s ease, color 0.4s ease;
+    overflow-x: hidden;
 }
 
 body.night {
@@ -17,9 +20,8 @@ body.night {
 
 /* Main Content Styling */
 main {
-    text-align: center;
+    text-align: left;
     padding: 2rem;
-    max-width: 700px;
 }
 
 h1 {
@@ -88,16 +90,14 @@ body, .dayNight label, .dayNight label::before {
 
 #family-tree-container {
     display: flex;
-    flex-direction: column; /* Arranges levels vertically */
-    align-items: center; /* Centers each row horizontally */
-    gap: 2em; /* Adds spacing between levels */
+    flex-direction: column;
+    align-items: center;
+    gap: 2em;
     padding: 1em;
-    background-color: #faf7f5;
-    width: 100%; /* Takes the full width of the parent container */
-    max-width: none; /* Increase the maximum width to make it wider */
-    margin: 0 auto; /* Center the container horizontally */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Optional shadow for aesthetics */
-    border-radius: 10px; /* Rounded corners for a modern look */
+    background: transparent;
+    width: 100%;
+    margin: 0 auto;
+    border-radius: 10px;
 }
 
 
@@ -956,7 +956,7 @@ body.night .card-copy {
 .form-grid {
     display: grid;
     gap: 1rem;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
 }
 
 .field {
@@ -1146,9 +1146,19 @@ body.night footer {
 }
 
 .narrow-shell {
-    max-width: 800px;
+    max-width: 680px;
     margin-left: auto;
     margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.narrow-shell .hero {
+    grid-template-columns: 1fr;
+}
+
+.narrow-shell .hero-copy h1 {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
 }
 
 .tree-connector {
