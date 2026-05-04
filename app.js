@@ -452,6 +452,10 @@ const infoBirth = modal ? document.getElementById('info-birth') : null;
 const infoPlace = modal ? document.getElementById('info-place') : null;
 const infoDeath = modal ? document.getElementById('info-death') : null;
 const infoOcc = modal ? document.getElementById('info-occupation') : null;
+const infoPhone = modal ? document.getElementById('info-phone') : null;
+const editBtn = modal ? document.getElementById('modal-edit-btn') : null;
+const removeBtn = modal ? document.getElementById('modal-remove-btn') : null;
+let currentProfilePerson = null;
 
 function computeAge(bday) {
     if (!bday) return '';
@@ -489,6 +493,7 @@ function openProfile(person, derivedRole) {
     if (!person || !modal || !modalName || !modalAvatar || !modalSubtitle || !modalTags || !lifeTimeline || !infoBirth || !infoPlace || !infoDeath || !infoOcc) {
         return;
     }
+    currentProfilePerson = person;
 
     modal.classList.remove('hidden');
     modal.setAttribute('aria-hidden', 'false');
@@ -516,6 +521,9 @@ function openProfile(person, derivedRole) {
     infoPlace.textContent = person.birthPlace || 'Unknown';
     infoDeath.textContent = person.deathDate || 'Living';
     infoOcc.textContent = person.occupation || 'Unknown';
+    if (infoPhone) {
+        infoPhone.textContent = person.phone || 'Unknown';
+    }
 
     // Life timeline: if person.timeline exists, render it; otherwise render a short default
     lifeTimeline.innerHTML = '';
@@ -544,6 +552,44 @@ if (modal && modalClose) {
     if (backdrop) {
         backdrop.addEventListener('click', closeProfile);
     }
+}
+
+if (editBtn) {
+    editBtn.addEventListener('click', () => {
+        if (currentProfilePerson) {
+            if (currentProfilePerson.id && window.FamilyTreeStore && window.FamilyTreeStore.isConfigured()) {
+                window.location.href = `AddPeople.html?edit=${currentProfilePerson.id}`;
+            } else {
+                alert('Cannot edit this built-in or static record.');
+            }
+        }
+    });
+}
+
+if (removeBtn) {
+    removeBtn.addEventListener('click', async () => {
+        if (currentProfilePerson) {
+            if (currentProfilePerson.id && window.FamilyTreeStore && window.FamilyTreeStore.isConfigured()) {
+                if (confirm(`Are you sure you want to remove ${currentProfilePerson.name}?`)) {
+                    try {
+                        removeBtn.disabled = true;
+                        removeBtn.textContent = 'Removing...';
+                        await window.FamilyTreeStore.removePerson(currentProfilePerson.id);
+                        closeProfile();
+                        // Re-render recent people and tree if possible
+                        if (typeof renderRecentPeople === 'function') renderRecentPeople();
+                    } catch (error) {
+                        alert(error.message || 'Could not remove person.');
+                    } finally {
+                        removeBtn.disabled = false;
+                        removeBtn.textContent = 'Remove';
+                    }
+                }
+            } else {
+                alert('Cannot remove this built-in or static record.');
+            }
+        }
+    });
 }
 
 function findPersonByName(root, targetName) {

@@ -12,6 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const saveHint = document.getElementById("save-hint");
     const githubImageUploadUrl = String(config.githubImageUploadUrl || "").trim();
     const connectionOrder = ["Parent", "Sibling", "Partner", "Child", "Other"];
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const editId = urlParams.get('edit');
 
     if (!form || !window.FamilyTreeStore) {
         return;
@@ -281,12 +284,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const imageUrl = await resolveImageUrl().catch((error) => {
             throw error;
         });
+        const phoneInput = document.getElementById("phone");
         const payload = {
             name: document.getElementById("name").value.trim(),
             relation: document.getElementById("relation").value,
             birthday: document.getElementById("birthday").value.trim(),
             birthPlace: document.getElementById("birth-place").value.trim(),
             occupation: document.getElementById("occupation").value.trim(),
+            phone: phoneInput ? phoneInput.value.trim() : "",
             parentName: parentNameSelect ? parentNameSelect.value.trim() : "",
             partnerName: document.getElementById("partner-name").value.trim(),
             notes: document.getElementById("notes").value.trim(),
@@ -297,25 +302,32 @@ document.addEventListener("DOMContentLoaded", () => {
         submitButton.textContent = "Saving...";
 
         try {
-            await window.FamilyTreeStore.addPerson(payload);
-            updateStatus();
-            form.reset();
-            if (photoPreview) {
-                photoPreview.classList.add("hidden");
-                photoPreview.removeAttribute("src");
-            }
-            if (photoUrlInput) {
-                photoUrlInput.value = "";
-            }
-            if (relationInput) {
-                relationInput.value = "Other";
-            }
-            await refreshConnectionDropdown();
-            if (parentNameSelect) {
-                parentNameSelect.value = "";
-            }
-            if (statusText) {
-                statusText.textContent = "Saved. Return to the tree to see the latest additions.";
+            if (editId && window.FamilyTreeStore.updatePerson) {
+                await window.FamilyTreeStore.updatePerson(editId, payload);
+                if (statusText) statusText.textContent = "Record updated successfully.";
+                submitButton.textContent = "Saved";
+                setTimeout(() => window.location.href = "index.html", 1500);
+            } else {
+                await window.FamilyTreeStore.addPerson(payload);
+                updateStatus();
+                form.reset();
+                if (photoPreview) {
+                    photoPreview.classList.add("hidden");
+                    photoPreview.removeAttribute("src");
+                }
+                if (photoUrlInput) {
+                    photoUrlInput.value = "";
+                }
+                if (relationInput) {
+                    relationInput.value = "Other";
+                }
+                await refreshConnectionDropdown();
+                if (parentNameSelect) {
+                    parentNameSelect.value = "";
+                }
+                if (statusText) {
+                    statusText.textContent = "Saved. Return to the tree to see the latest additions.";
+                }
             }
         } catch (error) {
             if (statusText) {
@@ -328,5 +340,37 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     updateStatus();
-    refreshConnectionDropdown();
+    refreshConnectionDropdown().then(async () => {
+        if (editId && window.FamilyTreeStore.getPerson) {
+            try {
+                const person = await window.FamilyTreeStore.getPerson(editId);
+                if (person) {
+                    document.getElementById("name").value = person.name || "";
+                    if (relationInput) relationInput.value = person.relation || "Other";
+                    document.getElementById("birthday").value = person.birthday || "";
+                    document.getElementById("birth-place").value = person.birthPlace || "";
+                    document.getElementById("occupation").value = person.occupation || "";
+                    const phoneInput = document.getElementById("phone");
+                    if (phoneInput) phoneInput.value = person.phone || "";
+                    if (parentNameSelect) parentNameSelect.value = person.parentName || "";
+                    document.getElementById("partner-name").value = person.partnerName || "";
+                    document.getElementById("notes").value = person.notes || "";
+                    if (person.imageUrl && photoPreview && person.imageUrl !== "images/placeholder.png") {
+                        photoPreview.src = person.imageUrl;
+                        photoPreview.classList.remove("hidden");
+                        if (photoUrlInput && person.imageUrl.startsWith("http")) {
+                            photoUrlInput.value = person.imageUrl;
+                        }
+                    }
+                    submitButton.textContent = "Update person";
+                    const pageTitle = document.querySelector(".hero-copy h1");
+                    if (pageTitle) pageTitle.textContent = "Edit relative.";
+                    const eyebrow = document.querySelector(".eyebrow");
+                    if (eyebrow) eyebrow.textContent = "Edit person";
+                }
+            } catch (err) {
+                console.error("Failed to load person for edit", err);
+            }
+        }
+    });
 });

@@ -39,6 +39,7 @@
             birthday: source.birthday || source.birth_date || source.birthDate || "",
             birthPlace: source.birth_place || source.birthPlace || "",
             occupation: source.occupation || "",
+            phone: source.phone || source.phone_number || source.phoneNumber || "",
             notes: source.notes || "",
             parentName: source.parent_name || source.parentName || "",
             partnerName: source.partner_name || source.partnerName || "",
@@ -100,6 +101,7 @@
             birthday: payload.birthday || "",
             birthPlace: payload.birthPlace || "",
             occupation: payload.occupation || "",
+            phone: payload.phone || "",
             notes: payload.notes || "",
             parentName: payload.parentName || "",
             partnerName: payload.partnerName || "",
@@ -134,6 +136,44 @@
         }
     }
 
+    async function getPerson(id) {
+        if (!configured) return null;
+        try {
+            const rows = await request(`/rest/v1/${tableName}?select=*&id=eq.${encodeURIComponent(id)}`, { method: "GET" });
+            if (rows && rows.length > 0) return normalizePerson(rows[0]);
+            return null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    async function updatePerson(id, payload) {
+        if (!configured) throw new Error("Connect your save details before updating.");
+        const record = normalizePerson({ ...payload, id });
+        try {
+            const updated = await request(`/rest/v1/${tableName}?id=eq.${encodeURIComponent(id)}`, {
+                method: "PATCH",
+                headers: { ...headers, Prefer: "return=representation" },
+                body: JSON.stringify(record)
+            });
+            statusLabel = "Saved successfully";
+            return Array.isArray(updated) && updated.length > 0 ? normalizePerson(updated[0]) : record;
+        } catch (error) {
+            statusLabel = "Save unavailable";
+            throw error;
+        }
+    }
+
+    async function removePerson(id) {
+        if (!configured) throw new Error("Connect your save details before removing.");
+        try {
+            await request(`/rest/v1/${tableName}?id=eq.${encodeURIComponent(id)}`, { method: "DELETE" });
+            return true;
+        } catch (error) {
+            throw error;
+        }
+    }
+
     window.FamilyTreeStore = {
         isConfigured() {
             return configured;
@@ -143,6 +183,9 @@
         },
         loadPeople,
         addPerson,
+        getPerson,
+        updatePerson,
+        removePerson,
         normalizePerson
     };
 })();
