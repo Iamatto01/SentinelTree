@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive family tree with touch-friendly cards and easy record entry.">
+    <meta name="author" content="Iamatto01">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <title>Jamal Awang Legacy</title>
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="index.html">Jamal Awang Legacy</a>
+        <nav class="topnav" aria-label="Primary">
+            <div class="radio-group" id="nav-group">
+                <div class="radio-option">
+                    <input type="radio" name="nav" id="option1" value="index.html" onclick="window.location.href='index.html'" checked>
+                    <label for="option1" class="radio-label">Family Tree</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" name="nav" id="option2" value="gallery.html" onclick="window.location.href='gallery.html'">
+                    <label for="option2" class="radio-label">Gallery</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" name="nav" id="option3" value="AddPeople.html" onclick="window.location.href='AddPeople.html'">
+                    <label for="option3" class="radio-label">Add People</label>
+                </div>
+                <div class="slider"></div>
+            </div>
+            
+            <label class="theme-switch" aria-label="Toggle dark mode">
+                <input id="themeToggle" type="checkbox" class="theme-switch__checkbox">
+                <div class="theme-switch__container">
+                    <div class="theme-switch__stars-container">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><path d="M12 2L15 9L22 9L16 14L18 21L12 17L6 21L8 14L2 9L9 9L12 2Z" fill="currentColor"/></svg>
+                    </div>
+                    <div class="theme-switch__circle-container">
+                        <div class="theme-switch__sun-moon-container">
+                            <div class="theme-switch__moon">
+                                <div class="theme-switch__spot"></div>
+                                <div class="theme-switch__spot"></div>
+                                <div class="theme-switch__spot"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="theme-switch__clouds"></div>
+                </div>
+            </label>
+        </nav>
+    </header>
+
+    <main class="page-shell">
+        <section class="hero">
+            <div class="hero-copy">
+                <p class="eyebrow">Touch-friendly family archive</p>
+                <h1>Explore the tree, then add new people.</h1>
+                <p class="lead">Cards are larger, labels are clearer, and every bubble now shows exactly what happens when you tap it.</p>
+                <div class="hero-actions">
+                    <a class="primary-button" href="AddPeople.html">Add a person</a>
+                    <a class="secondary-button" href="gallery.html">View gallery</a>
+                </div>
+            </div>
+            <aside class="status-card" aria-label="Usage hints">
+                <div class="status-row">
+                    <span class="status-label">Saved records</span>
+                    <strong id="database-status">Connect to save</strong>
+                </div>
+                <p class="helper-text">Use the Add People page to store new family members.</p>
+                <div class="hint-list">
+                    <span>Tap a bubble to explore a branch.</span>
+                    <span>Use Details for a profile card.</span>
+                    <span>Open Add People to save records for everyone.</span>
+                </div>
+            </aside>
+        </section>
+
+        <section class="panel" id="tree-panel">
+            <div class="panel-header">
+                <div>
+                    <p class="section-kicker">Family tree</p>
+                    <h2>Branch navigator</h2>
+                </div>
+                <p class="section-note">Each card is sized for touch and has a clear action indicator.</p>
+            </div>
+            <div id="family-tree-container"></div>
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <p class="section-kicker">Recent additions</p>
+                    <h2>Saved people</h2>
+                </div>
+                <p class="section-note">New people appear here after saving.</p>
+            </div>
+            <div id="recent-people-list" class="people-grid"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Jamal Awang Legacy. All Rights Reserved.</p>
+    </footer>
+
+    <div id="profile-modal" class="modal hidden" aria-hidden="true">
+        <div class="modal-backdrop"></div>
+        <div class="modal-card">
+            <button id="modal-close" class="modal-close" aria-label="Close">✕</button>
+            <div class="modal-header">
+                <img id="modal-avatar" src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='60' fill='%23E5E7EB'/%3E%3Ccircle cx='60' cy='48' r='22' fill='%239CA3AF'/%3E%3Cpath d='M28 102c6-18 22-28 32-28s26 10 32 28' fill='%239CA3AF'/%3E%3C/svg%3E" alt="avatar">
+                <div>
+                    <h2 id="modal-name">Name</h2>
+                    <div id="modal-subtitle" class="subtitle">Birth - Present · X years</div>
+                    <div id="modal-tags" class="tags"></div>
+                </div>
+            </div>
+
+            <section class="modal-section">
+                <h3>Essential Information</h3>
+                <dl class="essential-info">
+                    <div><dt>Birth Date</dt><dd id="info-birth">Unknown</dd></div>
+                    <div><dt>Birth Place</dt><dd id="info-place">Unknown</dd></div>
+                    <div><dt>Death Date</dt><dd id="info-death">Living</dd></div>
+                    <div><dt>Occupation</dt><dd id="info-occupation">Unknown</dd></div>
+                </dl>
+            </section>
+
+            <section class="modal-section">
+                <h3>Life Timeline</h3>
+                <ul id="life-timeline" class="timeline"></ul>
+            </section>
+        </div>
+    </div>
+
+    <script src="supabase-config.js"></script>
+    <script src="data-store.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

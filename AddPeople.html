@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Add a new family member and save the record.">
+    <title>Add People | Jamal Awang Legacy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="index.html">Jamal Awang Legacy</a>
+        <nav class="topnav" aria-label="Primary">
+            <div class="radio-group" id="nav-group">
+                <div class="radio-option">
+                    <input type="radio" name="nav" id="option1" value="index.html" onclick="window.location.href='index.html'">
+                    <label for="option1" class="radio-label">Family Tree</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" name="nav" id="option2" value="gallery.html" onclick="window.location.href='gallery.html'">
+                    <label for="option2" class="radio-label">Gallery</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" name="nav" id="option3" value="AddPeople.html" onclick="window.location.href='AddPeople.html'" checked>
+                    <label for="option3" class="radio-label">Add People</label>
+                </div>
+                <div class="slider"></div>
+            </div>
+            
+            <label class="theme-switch" aria-label="Toggle dark mode">
+                <input id="themeToggle" type="checkbox" class="theme-switch__checkbox">
+                <div class="theme-switch__container">
+                    <div class="theme-switch__stars-container">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><path d="M12 2L15 9L22 9L16 14L18 21L12 17L6 21L8 14L2 9L9 9L12 2Z" fill="currentColor"/></svg>
+                    </div>
+                    <div class="theme-switch__circle-container">
+                        <div class="theme-switch__sun-moon-container">
+                            <div class="theme-switch__moon">
+                                <div class="theme-switch__spot"></div>
+                                <div class="theme-switch__spot"></div>
+                                <div class="theme-switch__spot"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="theme-switch__clouds"></div>
+                </div>
+            </label>
+        </nav>
+    </header>
+
+    <main class="page-shell">
+        <section class="hero">
+            <div class="hero-copy">
+                <p class="eyebrow">Add new person</p>
+                <h1>Save relatives with clear labels.</h1>
+                <p class="lead">Use this page when you want to add someone new, attach the main details, and keep the record organized.</p>
+                <div class="hero-actions">
+                    <a class="primary-button" href="index.html">Back to the tree</a>
+                    <a class="secondary-button" href="gallery.html">Open gallery</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="form-shell">
+            <div class="panel-header">
+                <div>
+                    <p class="section-kicker">Person record</p>
+                    <h2>Record details</h2>
+                </div>
+                <p class="section-note">Add everything that helps the family tree stay usable for everyone.</p>
+            </div>
+
+            <form id="person-form" class="form-grid">
+                <div class="field">
+                    <label for="name">Full name</label>
+                    <input type="text" id="name" required placeholder="Enter the person's name">
+                </div>
+
+                <div class="field">
+                    <label for="relation">Relation</label>
+                    <select id="relation" required>
+                        <option value="Other">Other</option>
+                        <option value="Parent">Parent</option>
+                        <option value="Partner">Partner</option>
+                        <option value="Child">Child</option>
+                        <option value="Sibling">Sibling</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="birthday">Birthday</label>
+                    <input type="date" id="birthday">
+                </div>
+
+                <div class="field">
+                    <label for="birth-place">Birth place</label>
+                    <input type="text" id="birth-place" placeholder="City, town, or region">
+                </div>
+
+                <div class="field">
+                    <label for="occupation">Occupation</label>
+                    <input type="text" id="occupation" placeholder="Job title or role">
+                </div>
+
+                <div class="field">
+                    <label for="parent-name">Connected parent / sibling</label>
+                    <select id="parent-name">
+                        <option value="">Select connected parent or sibling</option>
+                    </select>
+                    <p id="parent-name-help" class="field-help">Choose an existing family member so the connection stays attached to a saved record.</p>
+                </div>
+
+                <div class="field">
+                    <label for="partner-name">Partner name</label>
+                    <input type="text" id="partner-name" placeholder="Optional partner link">
+                </div>
+
+                <div class="field span-2">
+                    <label for="photo-file">Photo upload</label>
+                    <div class="preview-row">
+                        <img id="photo-preview" class="photo-preview hidden" alt="Photo preview">
+                        <p class="helper-text">Upload an image or paste a public URL. The chosen image will be saved with the record.</p>
+                    </div>
+                    <input type="file" id="photo-file" accept="image/*">
+                </div>
+
+                <div class="field span-2">
+                    <label for="photo-url">Photo URL fallback</label>
+                    <input type="text" id="photo-url" placeholder="https://... or leave blank">
+                </div>
+
+                <div class="field span-2">
+                    <label for="notes">Notes</label>
+                    <textarea id="notes" placeholder="Extra details, life events, or anything helpful for the tree"></textarea>
+                </div>
+
+                <div class="form-actions span-2">
+                    <button id="save-person-button" class="primary-button" type="submit">Save person</button>
+                    <a class="secondary-button" href="index.html">Cancel</a>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Jamal Awang Legacy. All Rights Reserved.</p>
+    </footer>
+
+    <script src="supabase-config.js"></script>
+    <script src="data-store.js"></script>
+    <script src="app.js"></script>
+    <script src="add-people.js"></script>
+</body>
+</html>
