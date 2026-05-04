@@ -247,7 +247,7 @@ img {
 }
 
 .topbar {
-    position: sticky;
+    position: relative;
     top: 0;
     z-index: 100;
     width: min(1180px, calc(100% - 1rem));
@@ -1145,38 +1145,10 @@ body.night footer {
     }
 }
 
-main.page-shell {
-    max-width: none;
-    width: 100%;
-    padding: 1.25rem clamp(0.75rem, 2vw, 2rem) 3rem;
-    text-align: left;
-    box-sizing: border-box;
-}
-
-.topbar,
-footer {
-    width: calc(100% - 1.5rem);
-    max-width: 1180px;
+.narrow-shell {
+    max-width: 800px;
     margin-left: auto;
     margin-right: auto;
-    box-sizing: border-box;
-}
-
-.page-shell {
-    width: 100%;
-    max-width: 1180px;
-    margin-left: auto;
-    margin-right: auto;
-    box-sizing: border-box;
-}
-
-#family-tree-container {
-    width: 100%;
-    max-width: none;
-    padding: 1rem 0.25rem 0.5rem;
-    background: transparent;
-    box-shadow: none;
-    box-sizing: border-box;
 }
 
 .tree-connector {
