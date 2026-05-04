@@ -174,6 +174,50 @@
         }
     }
 
+    async function loadGalleryImages() {
+        if (!configured) return [];
+        try {
+            const rows = await request(
+                `/rest/v1/gallery_images?select=*&family_id=eq.${encodeURIComponent(familyId)}&order=created_at.desc`,
+                { method: "GET" }
+            );
+            return rows || [];
+        } catch (error) {
+            console.error("Failed to load gallery images:", error);
+            return [];
+        }
+    }
+
+    async function addGalleryImage(payload) {
+        if (!configured) throw new Error("Connect your save details before adding an image.");
+        const record = {
+            id: makeId(),
+            family_id: familyId,
+            event_name: payload.event_name || "General",
+            image_url: payload.image_url || "",
+            created_at: new Date().toISOString()
+        };
+
+        try {
+            const created = await request(`/rest/v1/gallery_images`, {
+                method: "POST",
+                headers: {
+                    ...headers,
+                    Prefer: "return=representation"
+                },
+                body: JSON.stringify([record])
+            });
+
+            if (Array.isArray(created) && created.length > 0) {
+                return created[0];
+            }
+            return record;
+        } catch (error) {
+            console.error("Failed to add gallery image:", error);
+            throw error;
+        }
+    }
+
     window.FamilyTreeStore = {
         isConfigured() {
             return configured;
@@ -186,6 +230,8 @@
         getPerson,
         updatePerson,
         removePerson,
-        normalizePerson
+        normalizePerson,
+        loadGalleryImages,
+        addGalleryImage
     };
 })();

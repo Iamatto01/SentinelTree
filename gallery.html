@@ -62,65 +62,60 @@
                 <div class="gallery-controls" style="display: flex; gap: 1rem; align-items: center;">
                     <select id="gallery-sort" class="secondary-button" style="padding: 0.5rem; border-radius: 0.5rem; background: transparent; color: inherit; border: 1px solid currentColor;">
                         <option value="all">All Events</option>
-                        <option value="Raya 2025">Raya 2025</option>
-                        <option value="Gathering">Gathering</option>
-                        <option value="Vacation">Vacation</option>
                     </select>
                     <button class="primary-button" id="add-image-button">Add Image</button>
                 </div>
             </div>
             <p class="section-note">A lighter gallery layout keeps the same navigation and color system as the tree.</p>
-            <div class="gallery-container">
-                <div class="gallery-event" data-category="Raya 2025">
-                    <h2>Raya 2025</h2>
-                    <div class="gallery-scroll">
-                        <img src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 220'%3E%3Crect width='320' height='220' rx='24' fill='%23E5E7EB'/%3E%3Cpath d='M36 178l54-62 44 44 42-52 72 70H36z' fill='%239CA3AF'/%3E%3Ccircle cx='118' cy='74' r='18' fill='%239CA3AF'/%3E%3C/svg%3E" alt="Family gallery placeholder">
-                        <img src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 220'%3E%3Crect width='320' height='220' rx='24' fill='%23E5E7EB'/%3E%3Cpath d='M36 178l54-62 44 44 42-52 72 70H36z' fill='%239CA3AF'/%3E%3Ccircle cx='118' cy='74' r='18' fill='%239CA3AF'/%3E%3C/svg%3E" alt="Family gallery placeholder">
-                        <img src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 220'%3E%3Crect width='320' height='220' rx='24' fill='%23E5E7EB'/%3E%3Cpath d='M36 178l54-62 44 44 42-52 72 70H36z' fill='%239CA3AF'/%3E%3Ccircle cx='118' cy='74' r='18' fill='%239CA3AF'/%3E%3C/svg%3E" alt="Family gallery placeholder">
-                    </div>
-                </div>
-                <div class="gallery-event" data-category="Gathering">
-                    <h2>Gathering</h2>
-                    <div class="gallery-scroll">
-                        <img src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 220'%3E%3Crect width='320' height='220' rx='24' fill='%23E5E7EB'/%3E%3Cpath d='M36 178l54-62 44 44 42-52 72 70H36z' fill='%239CA3AF'/%3E%3Ccircle cx='118' cy='74' r='18' fill='%239CA3AF'/%3E%3C/svg%3E" alt="Family gallery placeholder">
-                        <img src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 220'%3E%3Crect width='320' height='220' rx='24' fill='%23E5E7EB'/%3E%3Cpath d='M36 178l54-62 44 44 42-52 72 70H36z' fill='%239CA3AF'/%3E%3Ccircle cx='118' cy='74' r='18' fill='%239CA3AF'/%3E%3C/svg%3E" alt="Family gallery placeholder">
-                    </div>
+            <div class="gallery-container" id="gallery-container">
+                <div class="empty-state" id="gallery-empty" style="text-align: center; padding: 3rem 1rem; color: #5f6874;">
+                    No images yet. Click "Add Image" to upload one.
                 </div>
             </div>
         </section>
+
+        <!-- Upload Modal -->
+        <div id="upload-modal" class="hidden" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center;">
+            <div class="form-shell" style="max-width: 500px; width: 90%; margin: 2rem;">
+                <div class="panel-header">
+                    <h2>Add new image</h2>
+                </div>
+                <div style="padding: 1.5rem; display: grid; gap: 1.25rem;">
+                    <div class="field">
+                        <label>Select Image</label>
+                        <input type="file" id="upload-file-input" accept="image/*" style="display: block; width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 8px;">
+                        <img id="upload-preview" class="hidden" src="" style="width: 100%; max-height: 250px; object-fit: cover; border-radius: 12px; margin-top: 1rem; display: none;">
+                    </div>
+                    
+                    <div class="field">
+                        <label>Event Name</label>
+                        <p class="field-help" style="margin-top: -0.25rem; font-size: 0.85rem;">Choose an existing event or type a new one.</p>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                            <select id="upload-event-select" style="flex: 1; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 8px;">
+                                <option value="">-- Select Existing Event --</option>
+                            </select>
+                        </div>
+                        <input type="text" id="upload-new-event-input" placeholder="Or type a new event name..." style="width: 100%; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 8px; margin-top: 0.5rem;">
+                    </div>
+                    
+                    <p id="upload-status" style="color: #c2410c; font-weight: 600; font-size: 0.9rem; margin: 0;"></p>
+                </div>
+                <div class="form-actions" style="padding: 1.5rem; border-top: 1px solid rgba(15, 23, 42, 0.08); background: rgba(0,0,0,0.02); border-bottom-left-radius: 28px; border-bottom-right-radius: 28px;">
+                    <button id="upload-submit-btn" class="primary-button">Save Image</button>
+                    <button id="upload-cancel-btn" class="ghost-button" style="color: #5f6874;">Cancel</button>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <footer>
         <p>&copy; 2026 Jamal Awang Legacy. All Rights Reserved.</p>
     </footer>
 
+    <script src="supabase-config.js"></script>
+    <script src="data-store.js"></script>
     <script src="app.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const sortSelect = document.getElementById("gallery-sort");
-            const events = document.querySelectorAll(".gallery-event");
-
-            if (sortSelect) {
-                sortSelect.addEventListener("change", (e) => {
-                    const selected = e.target.value;
-                    events.forEach(event => {
-                        const category = event.getAttribute("data-category");
-                        if (selected === "all" || category === selected) {
-                            event.style.display = "block";
-                        } else {
-                            event.style.display = "none";
-                        }
-                    });
-                });
-            }
-
-            const addImageBtn = document.getElementById("add-image-button");
-            if (addImageBtn) {
-                addImageBtn.addEventListener("click", () => {
-                    alert("Add Image functionality would open an upload modal here.");
-                });
-            }
-        });
-    </script>
+    <script src="gallery.js"></script>
 </body>
 </html>
