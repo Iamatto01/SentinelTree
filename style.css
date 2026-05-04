@@ -321,7 +321,7 @@ body.night .topnav a[aria-current='page'] {
 
 .hero {
     display: grid;
-    grid-template-columns: minmax(0, 1.45fr) minmax(290px, 0.85fr);
+    grid-template-columns: 1fr;
     gap: 1.25rem;
     align-items: stretch;
 }

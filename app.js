@@ -683,7 +683,6 @@ renderFamilyTree = function(data, container, previousView = null) {
 };
 
 function renderRecentPeople() {
-    const statusElement = document.getElementById('database-status');
     const peopleList = document.getElementById('recent-people-list');
 
     if (!peopleList) {
@@ -691,15 +690,8 @@ function renderRecentPeople() {
     }
 
     if (!window.FamilyTreeStore) {
-        if (statusElement) {
-            statusElement.textContent = 'Connect to save';
-        }
         peopleList.innerHTML = '<div class="empty-state">Connect your save details to show records here.</div>';
         return;
-    }
-
-    if (statusElement) {
-        statusElement.textContent = window.FamilyTreeStore.statusLabel();
     }
 
     window.FamilyTreeStore.loadPeople().then(records => {
