@@ -6,8 +6,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // Modal elements
     const addImageBtn = document.getElementById("add-image-button");
     const uploadModal = document.getElementById("upload-modal");
+    
+    const modeRadios = document.querySelectorAll('input[name="upload-mode"]');
+    const uploadInputLabel = document.getElementById("upload-input-label");
     const fileInput = document.getElementById("upload-file-input");
-    const previewImg = document.getElementById("upload-preview");
+    const folderInput = document.getElementById("upload-folder-input");
+    const selectionCount = document.getElementById("upload-selection-count");
+
     const eventSelect = document.getElementById("upload-event-select");
     const newEventInput = document.getElementById("upload-new-event-input");
     const statusText = document.getElementById("upload-status");
@@ -19,12 +24,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let allImages = [];
 
+    function isVideoUrl(url) {
+        return url.match(/\.(mp4|webm|mov|ogg)$/i) || url.startsWith('data:video');
+    }
+
     // Utility: Convert File to Data URL
     function fileToDataUrl(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => resolve(String(reader.result || ""));
-            reader.onerror = () => reject(reader.error || new Error("Unable to read the image."));
+            reader.onerror = () => reject(reader.error || new Error("Unable to read the file."));
             reader.readAsDataURL(file);
         });
     }
@@ -36,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const formData = new FormData();
-        formData.append("file", file, file.name || "gallery-photo");
+        formData.append("file", file, file.name || "gallery-media");
 
         const response = await fetch(githubImageUploadUrl, {
             method: "POST",
@@ -45,14 +54,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!response.ok) {
             const message = await response.text();
-            throw new Error(message || "Could not upload the image.");
+            throw new Error(message || "Could not upload the file.");
         }
 
         const result = await response.json().catch(() => ({}));
         const imageUrl = String(result.imageUrl || result.url || result.rawUrl || "").trim();
 
         if (!imageUrl) {
-            throw new Error("The upload service did not return an image link.");
+            throw new Error("The upload service did not return a valid link.");
         }
 
         return imageUrl;
@@ -86,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return acc;
         }, {});
 
-        // Sort keys (events) alphabetically, or maybe by most recent? Let's do alphabetical
+        // Sort keys (events) alphabetically
         const events = Object.keys(grouped).sort();
 
         events.forEach(eventName => {
@@ -102,18 +111,26 @@ document.addEventListener("DOMContentLoaded", () => {
             scrollDiv.className = "gallery-scroll";
 
             grouped[eventName].forEach(imgData => {
-                const img = document.createElement("img");
-                img.src = imgData.image_url;
-                img.alt = eventName;
-                img.style.objectFit = 'cover';
-                scrollDiv.appendChild(img);
+                let media;
+                if (isVideoUrl(imgData.image_url)) {
+                    media = document.createElement("video");
+                    media.controls = true;
+                    // Preload metadata to avoid fetching full video immediately
+                    media.preload = "metadata";
+                } else {
+                    media = document.createElement("img");
+                    media.alt = eventName;
+                }
+                media.src = imgData.image_url;
+                media.title = eventName;
+                media.style.objectFit = 'cover';
+                scrollDiv.appendChild(media);
             });
 
             eventDiv.appendChild(scrollDiv);
             galleryContainer.appendChild(eventDiv);
         });
 
-        // Apply current sort filter if any
         if (sortSelect) {
             applySort(sortSelect.value);
         }
@@ -175,18 +192,46 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Modal logic
+    function updateInputMode() {
+        const mode = document.querySelector('input[name="upload-mode"]:checked').value;
+        if (mode === 'files') {
+            uploadInputLabel.textContent = "Select Files (Images or Videos)";
+            fileInput.style.display = "block";
+            folderInput.style.display = "none";
+            folderInput.value = "";
+        } else {
+            uploadInputLabel.textContent = "Select Folder";
+            fileInput.style.display = "none";
+            folderInput.style.display = "block";
+            fileInput.value = "";
+        }
+        selectionCount.textContent = "";
+    }
+
+    modeRadios.forEach(radio => radio.addEventListener('change', updateInputMode));
+
+    function updateSelectionCount(files) {
+        const valid = Array.from(files).filter(f => f.type.startsWith('image/') || f.type.startsWith('video/'));
+        selectionCount.textContent = valid.length > 0 ? `Selected ${valid.length} media file(s)` : "";
+    }
+
+    if (fileInput) fileInput.addEventListener('change', () => updateSelectionCount(fileInput.files));
+    if (folderInput) folderInput.addEventListener('change', () => updateSelectionCount(folderInput.files));
+
     function openModal() {
         uploadModal.classList.remove("hidden");
         uploadModal.style.display = "flex";
         statusText.textContent = "";
         statusText.style.color = "#c2410c";
-        // Reset form
+        
         fileInput.value = "";
-        previewImg.src = "";
-        previewImg.style.display = "none";
-        previewImg.classList.add("hidden");
+        folderInput.value = "";
+        selectionCount.textContent = "";
         eventSelect.value = "";
         newEventInput.value = "";
+        
+        document.querySelector('input[name="upload-mode"][value="files"]').checked = true;
+        updateInputMode();
     }
 
     function closeModal() {
@@ -201,34 +246,21 @@ document.addEventListener("DOMContentLoaded", () => {
         cancelBtn.addEventListener("click", closeModal);
     }
 
-    if (fileInput) {
-        fileInput.addEventListener("change", async () => {
-            const file = fileInput.files[0];
-            if (!file) {
-                previewImg.style.display = "none";
-                previewImg.classList.add("hidden");
-                return;
-            }
-            try {
-                const dataUrl = await fileToDataUrl(file);
-                previewImg.src = dataUrl;
-                previewImg.style.display = "block";
-                previewImg.classList.remove("hidden");
-            } catch (err) {
-                statusText.textContent = "Could not preview the image.";
-            }
-        });
-    }
-
+    // Submit logic
     if (submitBtn) {
         submitBtn.addEventListener("click", async () => {
-            const file = fileInput.files[0];
-            const evName = newEventInput.value.trim() || eventSelect.value || "General";
+            const mode = document.querySelector('input[name="upload-mode"]:checked').value;
+            const activeInput = mode === 'files' ? fileInput : folderInput;
+            
+            let allFiles = Array.from(activeInput.files);
+            let validFiles = allFiles.filter(f => f.type.startsWith('image/') || f.type.startsWith('video/'));
 
-            if (!file) {
-                statusText.textContent = "Please select an image file first.";
+            if (validFiles.length === 0) {
+                statusText.textContent = "Please select at least one valid image or video file.";
                 return;
             }
+
+            const evName = newEventInput.value.trim() || eventSelect.value || "General";
 
             if (!window.FamilyTreeStore || !window.FamilyTreeStore.isConfigured()) {
                 statusText.textContent = "Database not connected. Cannot save.";
@@ -237,34 +269,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
             try {
                 submitBtn.disabled = true;
-                submitBtn.textContent = "Uploading...";
-                statusText.textContent = "Uploading image...";
                 statusText.style.color = "#0e7490";
+                
+                let uploadedCount = 0;
+                const totalFiles = validFiles.length;
 
-                const imageUrl = await uploadPhotoToGitHub(file);
+                for (let i = 0; i < totalFiles; i++) {
+                    const file = validFiles[i];
+                    submitBtn.textContent = `Uploading ${i + 1} of ${totalFiles}...`;
+                    statusText.textContent = `Uploading "${file.name}"...`;
 
-                statusText.textContent = "Saving to database...";
-                await window.FamilyTreeStore.addGalleryImage({
-                    event_name: evName,
-                    image_url: imageUrl
-                });
+                    // Upload to github / convert
+                    const imageUrl = await uploadPhotoToGitHub(file);
 
-                statusText.textContent = "Success!";
+                    // Save to DB
+                    await window.FamilyTreeStore.addGalleryImage({
+                        event_name: evName,
+                        image_url: imageUrl
+                    });
+
+                    uploadedCount++;
+                }
+
+                statusText.textContent = `Success! Uploaded ${uploadedCount} file(s).`;
                 statusText.style.color = "#16a34a"; // Green
+                submitBtn.textContent = "Done";
 
                 setTimeout(() => {
                     closeModal();
                     refreshGallery();
                     submitBtn.disabled = false;
-                    submitBtn.textContent = "Save Image";
-                }, 1000);
+                    submitBtn.textContent = "Upload Media";
+                }, 1500);
 
             } catch (err) {
                 console.error(err);
                 statusText.style.color = "#c2410c";
                 statusText.textContent = err.message || "Something went wrong during upload.";
                 submitBtn.disabled = false;
-                submitBtn.textContent = "Save Image";
+                submitBtn.textContent = "Retry Upload";
             }
         });
     }

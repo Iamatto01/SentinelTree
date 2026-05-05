@@ -202,7 +202,8 @@ body, .dayNight label, .dayNight label::before {
     gap: 1em;
 }
 
-.gallery-scroll img {
+.gallery-scroll img,
+.gallery-scroll video {
     width: 200px;
     height: 150px;
     object-fit: cover;
@@ -1072,7 +1073,8 @@ body.night .gallery-event {
     scroll-snap-type: x proximity;
 }
 
-.gallery-scroll img {
+.gallery-scroll img,
+.gallery-scroll video {
     width: 220px;
     height: 160px;
     object-fit: cover;
@@ -1139,7 +1141,8 @@ body.night footer {
         height: 72px;
     }
 
-    .gallery-scroll img {
+    .gallery-scroll img,
+    .gallery-scroll video {
         width: 180px;
         height: 140px;
     }
