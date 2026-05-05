@@ -178,7 +178,7 @@
         if (!configured) return [];
         try {
             const rows = await request(
-                `/rest/v1/gallery_images?select=*&family_id=eq.${encodeURIComponent(familyId)}&order=created_at.desc`,
+                `/rest/v1/gallery_images?select=*&family_id=eq.${encodeURIComponent(familyId)}&order=created_at.desc&limit=5`,
                 { method: "GET" }
             );
             return rows || [];
