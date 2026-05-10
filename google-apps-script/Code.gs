@@ -160,6 +160,19 @@ function generateId() {
   return Utilities.getUuid();
 }
 
+function sanitizeFileName(fileName) {
+  const normalized = String(fileName || 'family-media')
+    .replace(/[\\\\/:*?"<>|]+/g, '-')
+    .replace(/\\s+/g, ' ')
+    .trim();
+  return normalized.slice(0, 120) || 'family-media';
+}
+
+function validateMimeType(mimeType) {
+  const normalized = String(mimeType || '').toLowerCase().trim();
+  return normalized.startsWith('image/') || normalized.startsWith('video/');
+}
+
 function toRecord(input, columns) {
   const record = {};
   columns.forEach((key) => {
@@ -313,7 +326,7 @@ function addGalleryImage(spreadsheet, familyId, incomingRecord) {
 function uploadMedia(payload) {
   const folderId = String(payload.folderId || '').trim();
   const base64Data = String(payload.base64Data || '').trim();
-  const fileName = String(payload.fileName || 'family-media');
+  const fileName = sanitizeFileName(payload.fileName);
   const mimeType = String(payload.mimeType || 'application/octet-stream');
   const makePublic = payload.makePublic === true;
 
@@ -323,6 +336,9 @@ function uploadMedia(payload) {
 
   if (!base64Data) {
     throw new Error('Missing file content.');
+  }
+  if (!validateMimeType(mimeType)) {
+    throw new Error('Unsupported media type. Only image/* and video/* are allowed.');
   }
 
   const folder = DriveApp.getFolderById(folderId);

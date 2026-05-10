@@ -58,6 +58,10 @@
         };
     }
 
+    function resolveFamilyHead(payload) {
+        return payload.familyHead || payload.parentName || payload.name || "";
+    }
+
     async function request(action, payload = {}) {
         if (!configured) {
             statusLabel = "Connect Google Apps Script";
@@ -142,7 +146,7 @@
             notes: payload.notes || "",
             parentName: payload.parentName || "",
             partnerName: payload.partnerName || "",
-            familyHead: payload.familyHead || payload.parentName || payload.name || "",
+            familyHead: resolveFamilyHead(payload),
             imageUrl: payload.imageUrl || "",
             createdAt: now,
             updatedAt: now
@@ -181,7 +185,7 @@
             ...payload,
             id,
             family_id: familyId,
-            familyHead: payload.familyHead || payload.parentName || payload.name || "",
+            familyHead: resolveFamilyHead(payload),
             updatedAt: now
         });
 

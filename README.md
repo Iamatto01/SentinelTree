@@ -22,7 +22,7 @@ Open `supabase-config.js` and set:
 - `googleDrivePublicView`: `true` if media should be viewable by anyone with link
 - `familyId`: keep as `jamal-awang-legacy` (or change if needed)
 
-The Sheet and Drive IDs above are the current target resources requested for this project. Replace them if you want to use different resources.
+The Sheet and Drive IDs above are the current target resources requested by the project owner. Replace them if you want to use different resources.
 
 ### 2) Deploy the Google Apps Script backend
 
