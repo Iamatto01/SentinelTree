@@ -343,10 +343,6 @@ document.addEventListener("DOMContentLoaded", () => {
             imageUrl: imageUrl || "images/placeholder.png"
         };
 
-        if (!payload.familyHead) {
-            payload.familyHead = payload.parentName || payload.name;
-        }
-
         submitButton.disabled = true;
         submitButton.textContent = "Saving...";
 

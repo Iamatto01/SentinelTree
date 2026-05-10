@@ -21,6 +21,8 @@ Open `supabase-config.js` and set:
 - `googleDriveFolderId`: `11IxCJ40ZjFZahJo3zx6Tk9WZ2W3HKSIX`
 - `familyId`: keep as `jamal-awang-legacy` (or change if needed)
 
+The Sheet and Drive IDs above are the current target resources requested for this project. Replace them if you want to use different resources.
+
 ### 2) Deploy the Google Apps Script backend
 
 1. Create a Google Apps Script project.
@@ -51,4 +53,5 @@ The backend auto-creates/normalizes these sheets and columns:
 
 - `Ketua keluarga` field is included on `AddPeople.html` for easier grouping in Google Sheets.
 - If Drive upload is not configured, media fallback uses local Data URL behavior.
+- Uploaded files are set to **Anyone with the link can view** in Google Drive by default (`Code.gs`), so avoid uploading sensitive media.
 - The family tree visual still uses bundled tree data; recent additions and edit/remove come from saved records.

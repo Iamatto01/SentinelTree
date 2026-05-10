@@ -124,7 +124,9 @@ function getOrCreateSheet(spreadsheet, name, columns) {
     return sheet;
   }
 
-  const isSame = columns.length === normalizedHeader.length && columns.every((column, index) => column === normalizedHeader[index]);
+  const hasSameLength = columns.length === normalizedHeader.length;
+  const hasSameColumns = columns.every((column, index) => column === normalizedHeader[index]);
+  const isSame = hasSameLength && hasSameColumns;
   if (!isSame) {
     sheet.clear();
     sheet.getRange(1, 1, 1, columns.length).setValues([columns]);

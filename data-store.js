@@ -98,7 +98,8 @@
             const reader = new FileReader();
             reader.onload = () => {
                 const value = String(reader.result || "");
-                const base64 = value.includes(",") ? value.split(",").pop() : "";
+                const commaIndex = value.indexOf(",");
+                const base64 = commaIndex >= 0 ? value.slice(commaIndex + 1) : "";
                 if (!base64) {
                     reject(new Error("Could not encode file."));
                     return;
