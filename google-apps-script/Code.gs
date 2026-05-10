@@ -163,6 +163,22 @@ function toRecord(input, columns) {
   return record;
 }
 
+function resolveFamilyHead(record, fallbackRecord) {
+  const current = record || {};
+  const fallback = fallbackRecord || {};
+  return current.family_head ||
+    current.familyHead ||
+    current.parent_name ||
+    current.parentName ||
+    current.name ||
+    fallback.family_head ||
+    fallback.familyHead ||
+    fallback.parent_name ||
+    fallback.parentName ||
+    fallback.name ||
+    '';
+}
+
 function listPeople(spreadsheet, familyId) {
   const sheet = getOrCreateSheet(spreadsheet, PEOPLE_SHEET_NAME, PEOPLE_COLUMNS);
   const rows = sheetRowsToObjects(sheet)
@@ -197,7 +213,7 @@ function addPerson(spreadsheet, familyId, incomingRecord) {
     id: incomingRecord.id || generateId(),
     family_id: familyId,
     relation: incomingRecord.relation || 'Other',
-    family_head: incomingRecord.family_head || incomingRecord.familyHead || incomingRecord.parent_name || incomingRecord.parentName || incomingRecord.name || '',
+    family_head: resolveFamilyHead(incomingRecord),
     created_at: incomingRecord.created_at || incomingRecord.createdAt || now,
     updated_at: incomingRecord.updated_at || incomingRecord.updatedAt || now,
     birth_place: incomingRecord.birth_place || incomingRecord.birthPlace || '',
@@ -232,7 +248,7 @@ function updatePerson(spreadsheet, familyId, id, incomingRecord) {
     birth_place: incomingRecord.birth_place || incomingRecord.birthPlace || target.birth_place || '',
     parent_name: incomingRecord.parent_name || incomingRecord.parentName || target.parent_name || '',
     partner_name: incomingRecord.partner_name || incomingRecord.partnerName || target.partner_name || '',
-    family_head: incomingRecord.family_head || incomingRecord.familyHead || incomingRecord.parent_name || incomingRecord.parentName || incomingRecord.name || target.family_head || '',
+    family_head: resolveFamilyHead(incomingRecord, target),
     image_url: incomingRecord.image_url || incomingRecord.imageUrl || target.image_url || '',
     updated_at: incomingRecord.updated_at || incomingRecord.updatedAt || now
   };
@@ -261,11 +277,12 @@ function removePerson(spreadsheet, familyId, id) {
 
 function listGalleryImages(spreadsheet, familyId, limit) {
   const sheet = getOrCreateSheet(spreadsheet, GALLERY_SHEET_NAME, GALLERY_COLUMNS);
+  const safeLimit = Number.isFinite(limit) ? Math.max(0, Math.floor(limit)) : 100;
 
   return sheetRowsToObjects(sheet)
     .filter((row) => String(row.family_id || '').trim() === familyId)
     .sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')))
-    .slice(0, Math.max(1, limit || 100))
+    .slice(0, safeLimit || 100)
     .map((row) => {
       delete row.__row;
       return row;

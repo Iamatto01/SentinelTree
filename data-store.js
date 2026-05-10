@@ -209,7 +209,7 @@
         if (!configured) return [];
 
         try {
-            const result = await request("listGalleryImages", { limit: 100 });
+            const result = await request("listGalleryImages", { limit: 5 });
             const rows = Array.isArray(result.images) ? result.images : [];
             return rows.map(normalizeGalleryImage);
         } catch (error) {

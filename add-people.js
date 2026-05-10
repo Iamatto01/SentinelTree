@@ -183,7 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 ? "Choose an existing family member so the connection stays attached to a saved record."
                 : "Choose a family member from the built-in tree, or connect Google Apps Script to load saved people."
         );
-        setFamilyHeadHelp("Choose the main head so records can be grouped in Google Sheet.");
+        setFamilyHeadHelp("Choose the main head so records can be grouped in Google Sheets.");
 
         let people = getSeedPeople();
         if (configured) {

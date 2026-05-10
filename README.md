@@ -49,6 +49,6 @@ The backend auto-creates/normalizes these sheets and columns:
 
 ## Notes
 
-- `Ketua keluarga` field is included on Add People for easier grouping in Google Sheets.
+- `Ketua keluarga` field is included on `AddPeople.html` for easier grouping in Google Sheets.
 - If Drive upload is not configured, media fallback uses local Data URL behavior.
 - The family tree visual still uses bundled tree data; recent additions and edit/remove come from saved records.
