@@ -1,82 +1,54 @@
 # Family Bubble Tree
 
-This project uses a touch-friendly UI and saves family records into a real database.
+This project uses a touch-friendly UI and now saves family records into **Google Sheets**, while uploaded photos/videos are saved into **Google Drive**.
 
 ## What changed
 
 - Bigger cards and clearer labels for the family tree.
 - Clear status text that tells people when saving is ready.
 - A separate Add People page for creating new records.
-- A recent additions panel that shows saved people from the database.
+- A recent additions panel that shows saved people from Google Sheets.
+- CRUD support (create, read, update, delete) for people records via a Google Apps Script backend.
 
-## How to save to the real database
+## Google setup (replace Supabase)
 
-1. Open `supabase-config.js`.
-2. Put your project URL into `supabaseUrl`.
-3. Put your anon key into `supabaseAnonKey`.
-4. Keep `familyTable` as `family_members` unless you rename the table.
-5. Create the table in your database by running this SQL:
+### 1) Configure frontend
 
-```sql
-create table if not exists public.family_members (
-    id uuid primary key default gen_random_uuid(),
-    family_id text not null default 'jamal-awang-legacy',
-    name text not null,
-    relation text not null default 'Other',
-    birthday text,
-    birth_place text,
-    occupation text,
-    notes text,
-    parent_name text,
-    partner_name text,
-    image_url text,
-    created_at timestamptz not null default now()
-);
+Open `/home/runner/work/SentinelTree/SentinelTree/supabase-config.js` and set:
 
-alter table public.family_members enable row level security;
+- `googleAppsScriptUrl`: your deployed Google Apps Script web app URL
+- `googleSheetId`: `1OIc-werahd_lschkjQCIawH6kUb0lGvjJR_msysSaWY`
+- `googleDriveFolderId`: `11IxCJ40ZjFZahJo3zx6Tk9WZ2W3HKSIX`
+- `familyId`: keep as `jamal-awang-legacy` (or change if needed)
 
-create policy "allow read family members"
-    on public.family_members
-    for select
-    using (true);
+### 2) Deploy the Google Apps Script backend
 
-create policy "allow insert family members"
-    on public.family_members
-    for insert
-    with check (true);
-```
+1. Create a Google Apps Script project.
+2. Copy file `/home/runner/work/SentinelTree/SentinelTree/google-apps-script/Code.gs` into the project.
+3. Deploy as **Web app**:
+   - Execute as: **Me**
+   - Who has access: **Anyone** (or Anyone with link)
+4. Copy the Web app URL into `googleAppsScriptUrl` in config.
+
+### 3) Google Sheet structure
+
+The backend auto-creates/normalizes these sheets and columns:
+
+- `family_members`:
+  `id, family_id, name, relation, birthday, birth_place, occupation, phone, notes, parent_name, partner_name, family_head, image_url, created_at, updated_at`
+- `gallery_images`:
+  `id, family_id, event_name, image_url, created_at`
+
+### 4) Use the app
 
 1. Open `AddPeople.html` and fill in the form.
-2. Click Save person.
-3. Open `index.html` to see the saved records in the Recent additions panel.
-
-## How to store uploaded images in GitHub
-
-The app can send the image file to a server-side upload endpoint, then save only the returned GitHub image URL in Supabase.
-
-1. Create a GitHub token with `contents:write` access to the target repository.
-2. Deploy the function in `supabase/functions/github-image-upload/index.ts`.
-3. Set these secrets in your Supabase project:
-
-```bash
-supabase secrets set GITHUB_TOKEN="your-token"
-supabase secrets set GITHUB_OWNER="your-github-username-or-org"
-supabase secrets set GITHUB_REPO="your-image-repo"
-supabase secrets set GITHUB_BRANCH="main"
-supabase secrets set GITHUB_IMAGE_PATH_PREFIX="family-images"
-```
-
-1. Copy the deployed function URL into `githubImageUploadUrl` inside `supabase-config.js`.
-2. Upload a photo from `AddPeople.html`; the file will be written to GitHub first, then the returned raw URL is saved in Supabase.
-
-Notes:
-
-- Use a public GitHub repo if everyone needs to view the images without signing in.
-- Supabase stores only the URL, not the image binary.
-- If the upload endpoint is not configured, the form falls back to the existing local image path behavior.
+2. Upload a photo (it will be saved to Google Drive).
+3. Save person (record + Drive link stored in Google Sheets).
+4. Open `index.html` to view recent additions.
+5. Edit/remove from profile modal (CRUD supported).
 
 ## Notes
 
-- The family tree still uses the bundled tree data as its visual source.
-- The tree nodes are circular, and the connector lines show the branch flow.
-- If you want the tree itself to become fully database-driven later, the next step is to turn the nested sample data into parent and child links.
+- `Ketua keluarga` field is included on Add People for easier grouping in Google Sheets.
+- If Drive upload is not configured, media fallback uses local Data URL behavior.
+- The family tree visual still uses bundled tree data; recent additions and edit/remove come from saved records.

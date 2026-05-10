@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const config = window.FAMILY_TREE_CONFIG || {};
     const form = document.getElementById("person-form");
     const statusText = document.getElementById("add-person-status");
     const submitButton = document.getElementById("save-person-button");
@@ -9,8 +8,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const relationInput = document.getElementById("relation");
     const parentNameSelect = document.getElementById("parent-name");
     const parentNameHelp = document.getElementById("parent-name-help");
+    const familyHeadSelect = document.getElementById("family-head");
+    const familyHeadHelp = document.getElementById("family-head-help");
     const saveHint = document.getElementById("save-hint");
-    const githubImageUploadUrl = String(config.githubImageUploadUrl || "").trim();
     const connectionOrder = ["Parent", "Sibling", "Partner", "Child", "Other"];
     
     const urlParams = new URLSearchParams(window.location.search);
@@ -28,13 +28,19 @@ document.addEventListener("DOMContentLoaded", () => {
         if (saveHint) {
             saveHint.textContent = window.FamilyTreeStore.isConfigured()
                 ? "Your details are ready to save."
-                : "Connect your save details to begin.";
+                : "Connect Google Apps Script to begin.";
         }
     }
 
     function setConnectionHelp(message) {
         if (parentNameHelp) {
             parentNameHelp.textContent = message;
+        }
+    }
+
+    function setFamilyHeadHelp(message) {
+        if (familyHeadHelp) {
+            familyHeadHelp.textContent = message;
         }
     }
 
@@ -50,6 +56,36 @@ document.addEventListener("DOMContentLoaded", () => {
         placeholder.disabled = true;
         placeholder.selected = true;
         parentNameSelect.appendChild(placeholder);
+    }
+
+    function resetFamilyHeadDropdown(promptText) {
+        if (!familyHeadSelect) {
+            return;
+        }
+
+        familyHeadSelect.innerHTML = "";
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = promptText;
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        familyHeadSelect.appendChild(placeholder);
+    }
+
+    function getFamilyHeadCandidates(people) {
+        const preferred = people.filter((person) => (person.relation || "").toLowerCase() === "parent");
+        const source = preferred.length > 0 ? preferred : people;
+        const seen = new Set();
+
+        return source
+            .map((person) => String(person.name || "").trim())
+            .filter((name) => {
+                if (!name || seen.has(name)) {
+                    return false;
+                }
+                seen.add(name);
+                return true;
+            });
     }
 
     function groupPeopleByRelation(people) {
@@ -137,12 +173,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const configured = window.FamilyTreeStore.isConfigured();
         parentNameSelect.disabled = true;
+        if (familyHeadSelect) {
+            familyHeadSelect.disabled = true;
+        }
         resetConnectionDropdown(configured ? "Loading saved family members..." : "Loading family members...");
+        resetFamilyHeadDropdown(configured ? "Loading family heads..." : "Loading family heads...");
         setConnectionHelp(
             configured
                 ? "Choose an existing family member so the connection stays attached to a saved record."
-                : "Choose a family member from the built-in tree, or connect the database to load saved people."
+                : "Choose a family member from the built-in tree, or connect Google Apps Script to load saved people."
         );
+        setFamilyHeadHelp("Choose the main head so records can be grouped in Google Sheet.");
 
         let people = getSeedPeople();
         if (configured) {
@@ -159,9 +200,13 @@ document.addEventListener("DOMContentLoaded", () => {
         resetConnectionDropdown(
             mergedPeople.length > 0 ? "Select connected parent or sibling" : "No saved family members yet"
         );
+        resetFamilyHeadDropdown(
+            mergedPeople.length > 0 ? "Select family head" : "No family head options yet"
+        );
 
         if (mergedPeople.length === 0) {
             setConnectionHelp("Save one person first, then choose them here.");
+            setFamilyHeadHelp("Save one person first, then choose a family head.");
             return;
         }
 
@@ -187,6 +232,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
         parentNameSelect.disabled = false;
         parentNameSelect.value = "";
+
+        const familyHeadCandidates = getFamilyHeadCandidates(mergedPeople);
+        if (familyHeadSelect) {
+            familyHeadCandidates.forEach((name) => {
+                const option = document.createElement("option");
+                option.value = name;
+                option.textContent = name;
+                familyHeadSelect.appendChild(option);
+            });
+            familyHeadSelect.disabled = false;
+            familyHeadSelect.value = "";
+        }
     }
 
     function fileToDataUrl(file) {
@@ -217,31 +274,18 @@ document.addEventListener("DOMContentLoaded", () => {
         return dataUrl;
     }
 
-    async function uploadPhotoToGitHub(file) {
-        if (!githubImageUploadUrl) {
+    async function uploadPhotoToDrive(file) {
+        if (!window.FamilyTreeStore || !window.FamilyTreeStore.uploadMedia) {
             return fileToDataUrl(file);
         }
 
-        const formData = new FormData();
-        formData.append("file", file, file.name || "family-photo");
-
-        const response = await fetch(githubImageUploadUrl, {
-            method: "POST",
-            body: formData
+        const uploaded = await window.FamilyTreeStore.uploadMedia(file, {
+            category: "people"
         });
-
-        if (!response.ok) {
-            const message = await response.text();
-            throw new Error(message || "Could not upload the image.");
-        }
-
-        const result = await response.json().catch(() => ({}));
-        const imageUrl = String(result.imageUrl || result.url || result.rawUrl || "").trim();
-
+        const imageUrl = String(uploaded && uploaded.url ? uploaded.url : "").trim();
         if (!imageUrl) {
             throw new Error("The upload service did not return an image link.");
         }
-
         return imageUrl;
     }
 
@@ -253,7 +297,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (selectedFile) {
-            return uploadPhotoToGitHub(selectedFile);
+            return uploadPhotoToDrive(selectedFile);
         }
 
         return "";
@@ -293,10 +337,15 @@ document.addEventListener("DOMContentLoaded", () => {
             occupation: document.getElementById("occupation").value.trim(),
             phone: phoneInput ? phoneInput.value.trim() : "",
             parentName: parentNameSelect ? parentNameSelect.value.trim() : "",
+            familyHead: familyHeadSelect ? familyHeadSelect.value.trim() : "",
             partnerName: document.getElementById("partner-name").value.trim(),
             notes: document.getElementById("notes").value.trim(),
             imageUrl: imageUrl || "images/placeholder.png"
         };
+
+        if (!payload.familyHead) {
+            payload.familyHead = payload.parentName || payload.name;
+        }
 
         submitButton.disabled = true;
         submitButton.textContent = "Saving...";
@@ -324,6 +373,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 await refreshConnectionDropdown();
                 if (parentNameSelect) {
                     parentNameSelect.value = "";
+                }
+                if (familyHeadSelect) {
+                    familyHeadSelect.value = "";
                 }
                 if (statusText) {
                     statusText.textContent = "Saved. Return to the tree to see the latest additions.";
@@ -353,6 +405,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     const phoneInput = document.getElementById("phone");
                     if (phoneInput) phoneInput.value = person.phone || "";
                     if (parentNameSelect) parentNameSelect.value = person.parentName || "";
+                    if (familyHeadSelect) familyHeadSelect.value = person.familyHead || "";
                     document.getElementById("partner-name").value = person.partnerName || "";
                     document.getElementById("notes").value = person.notes || "";
                     if (person.imageUrl && photoPreview && person.imageUrl !== "images/placeholder.png") {

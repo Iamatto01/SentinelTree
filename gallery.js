@@ -19,9 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const submitBtn = document.getElementById("upload-submit-btn");
     const cancelBtn = document.getElementById("upload-cancel-btn");
 
-    const config = window.FAMILY_TREE_CONFIG || {};
-    const githubImageUploadUrl = String(config.githubImageUploadUrl || "").trim();
-
     let allImages = [];
 
     function isVideoUrl(url) {
@@ -38,27 +35,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Utility: Upload to external URL or fallback to Data URL
-    async function uploadPhotoToGitHub(file) {
-        if (!githubImageUploadUrl) {
+    // Utility: Upload to Google Drive or fallback to Data URL
+    async function uploadPhotoToDrive(file) {
+        if (!window.FamilyTreeStore || !window.FamilyTreeStore.uploadMedia) {
             return fileToDataUrl(file);
         }
-
-        const formData = new FormData();
-        formData.append("file", file, file.name || "gallery-media");
-
-        const response = await fetch(githubImageUploadUrl, {
-            method: "POST",
-            body: formData
+        const uploaded = await window.FamilyTreeStore.uploadMedia(file, {
+            category: "gallery"
         });
-
-        if (!response.ok) {
-            const message = await response.text();
-            throw new Error(message || "Could not upload the file.");
-        }
-
-        const result = await response.json().catch(() => ({}));
-        const imageUrl = String(result.imageUrl || result.url || result.rawUrl || "").trim();
+        const imageUrl = String(uploaded && uploaded.url ? uploaded.url : "").trim();
 
         if (!imageUrl) {
             throw new Error("The upload service did not return a valid link.");
@@ -263,7 +248,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const evName = newEventInput.value.trim() || eventSelect.value || "General";
 
             if (!window.FamilyTreeStore || !window.FamilyTreeStore.isConfigured()) {
-                statusText.textContent = "Database not connected. Cannot save.";
+                statusText.textContent = "Google Apps Script not connected. Cannot save.";
                 return;
             }
 
@@ -279,8 +264,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     submitBtn.textContent = `Uploading ${i + 1} of ${totalFiles}...`;
                     statusText.textContent = `Uploading "${file.name}"...`;
 
-                    // Upload to github / convert
-                    const imageUrl = await uploadPhotoToGitHub(file);
+                    // Upload to Google Drive / convert
+                    const imageUrl = await uploadPhotoToDrive(file);
 
                     // Save to DB
                     await window.FamilyTreeStore.addGalleryImage({
