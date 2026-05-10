@@ -14,7 +14,7 @@ This project uses a touch-friendly UI and now saves family records into **Google
 
 ### 1) Configure frontend
 
-Open `/home/runner/work/SentinelTree/SentinelTree/supabase-config.js` and set:
+Open `supabase-config.js` and set:
 
 - `googleAppsScriptUrl`: your deployed Google Apps Script web app URL
 - `googleSheetId`: `1OIc-werahd_lschkjQCIawH6kUb0lGvjJR_msysSaWY`
@@ -24,7 +24,7 @@ Open `/home/runner/work/SentinelTree/SentinelTree/supabase-config.js` and set:
 ### 2) Deploy the Google Apps Script backend
 
 1. Create a Google Apps Script project.
-2. Copy file `/home/runner/work/SentinelTree/SentinelTree/google-apps-script/Code.gs` into the project.
+2. Copy file `google-apps-script/Code.gs` into the project.
 3. Deploy as **Web app**:
    - Execute as: **Me**
    - Who has access: **Anyone** (or Anyone with link)

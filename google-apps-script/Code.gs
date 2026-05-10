@@ -282,7 +282,7 @@ function listGalleryImages(spreadsheet, familyId, limit) {
   return sheetRowsToObjects(sheet)
     .filter((row) => String(row.family_id || '').trim() === familyId)
     .sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')))
-    .slice(0, safeLimit || 100)
+    .slice(0, safeLimit)
     .map((row) => {
       delete row.__row;
       return row;
