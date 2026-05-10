@@ -4,5 +4,6 @@ window.FAMILY_TREE_CONFIG = {
     // Replace them if you want to use different Google resources.
     googleSheetId: "1OIc-werahd_lschkjQCIawH6kUb0lGvjJR_msysSaWY",
     googleDriveFolderId: "11IxCJ40ZjFZahJo3zx6Tk9WZ2W3HKSIX",
+    googleDrivePublicView: true,
     familyId: "jamal-awang-legacy"
 };

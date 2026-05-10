@@ -41,7 +41,10 @@ function doPost(e) {
       return jsonResponse({ success: false, error: 'Missing sheetId.' });
     }
 
-    const familyId = String(payload.familyId || '').trim() || 'jamal-awang-legacy';
+    const familyId = String(payload.familyId || '').trim();
+    if (!familyId) {
+      return jsonResponse({ success: false, error: 'Missing familyId.' });
+    }
     const spreadsheet = SpreadsheetApp.openById(sheetId);
 
     switch (action) {
@@ -166,19 +169,20 @@ function toRecord(input, columns) {
 }
 
 function resolveFamilyHead(record, fallbackRecord) {
-  const current = record || {};
-  const fallback = fallbackRecord || {};
-  return current.family_head ||
-    current.familyHead ||
-    current.parent_name ||
-    current.parentName ||
-    current.name ||
-    fallback.family_head ||
-    fallback.familyHead ||
-    fallback.parent_name ||
-    fallback.parentName ||
-    fallback.name ||
-    '';
+  const sources = [record || {}, fallbackRecord || {}];
+  const orderedKeys = ['family_head', 'familyHead', 'parent_name', 'parentName', 'name'];
+
+  for (let sourceIndex = 0; sourceIndex < sources.length; sourceIndex += 1) {
+    const source = sources[sourceIndex];
+    for (let keyIndex = 0; keyIndex < orderedKeys.length; keyIndex += 1) {
+      const value = source[orderedKeys[keyIndex]];
+      if (value !== undefined && value !== null && String(value).trim()) {
+        return String(value).trim();
+      }
+    }
+  }
+
+  return '';
 }
 
 function listPeople(spreadsheet, familyId) {
@@ -311,6 +315,7 @@ function uploadMedia(payload) {
   const base64Data = String(payload.base64Data || '').trim();
   const fileName = String(payload.fileName || 'family-media');
   const mimeType = String(payload.mimeType || 'application/octet-stream');
+  const makePublic = payload.makePublic === true;
 
   if (!folderId) {
     throw new Error('Missing Google Drive folder id.');
@@ -325,7 +330,9 @@ function uploadMedia(payload) {
   const blob = Utilities.newBlob(bytes, mimeType, fileName);
   const file = folder.createFile(blob);
 
-  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  if (makePublic) {
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  }
 
   return {
     fileId: file.getId(),

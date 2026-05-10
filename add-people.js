@@ -73,6 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function getFamilyHeadCandidates(people) {
+        // Prefer known parents as family heads; if none exist yet, allow any saved person to keep first-time setup usable.
         const preferred = people.filter((person) => (person.relation || "").toLowerCase() === "parent");
         const source = preferred.length > 0 ? preferred : people;
         const seen = new Set();

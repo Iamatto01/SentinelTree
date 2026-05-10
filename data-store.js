@@ -3,6 +3,7 @@
     const appsScriptUrl = String(config.googleAppsScriptUrl || "").trim();
     const sheetId = String(config.googleSheetId || "").trim();
     const driveFolderId = String(config.googleDriveFolderId || "").trim();
+    const drivePublicView = config.googleDrivePublicView !== false;
     const familyId = config.familyId || "jamal-awang-legacy";
     const configured = Boolean(appsScriptUrl && !appsScriptUrl.includes("YOUR_"));
 
@@ -252,6 +253,7 @@
             fileName: file.name || "family-media",
             mimeType: file.type || "application/octet-stream",
             category: options.category || "general",
+            makePublic: options.makePublic !== undefined ? Boolean(options.makePublic) : drivePublicView,
             base64Data
         });
 
