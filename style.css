@@ -1674,3 +1674,16 @@ body.night .tree-connector::after {
     transform: translateX(100%) rotate(45deg);
   }
 }
+
+/* ── Utility classes ─────────────────────────────── */
+
+.hidden {
+    display: none !important;
+}
+
+/* Gallery upload modal — visible state (toggled via JS) */
+.modal-visible {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}

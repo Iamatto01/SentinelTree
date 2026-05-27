@@ -1,12 +1,29 @@
+/**
+ * gallery.js — Gallery page logic for SentinelTree
+ *
+ * Depends on: utils.js, data-store.js
+ *
+ * Uses shared file-upload and media-detection utilities from
+ * SentinelUtils instead of maintaining local copies.
+ * Modal open/close uses CSS classes only — no inline style toggles.
+ */
+
 document.addEventListener("DOMContentLoaded", () => {
+    "use strict";
+
+    const U = window.SentinelUtils;
+    const config = window.FAMILY_TREE_CONFIG || {};
+    const githubImageUploadUrl = String(config.githubImageUploadUrl || "").trim();
+
+    // ── DOM refs ────────────────────────────────────────────
     const galleryContainer = document.getElementById("gallery-container");
     const emptyState = document.getElementById("gallery-empty");
     const sortSelect = document.getElementById("gallery-sort");
-    
+
     // Modal elements
     const addImageBtn = document.getElementById("add-image-button");
     const uploadModal = document.getElementById("upload-modal");
-    
+
     const modeRadios = document.querySelectorAll('input[name="upload-mode"]');
     const uploadInputLabel = document.getElementById("upload-input-label");
     const fileInput = document.getElementById("upload-file-input");
@@ -19,90 +36,51 @@ document.addEventListener("DOMContentLoaded", () => {
     const submitBtn = document.getElementById("upload-submit-btn");
     const cancelBtn = document.getElementById("upload-cancel-btn");
 
-    const config = window.FAMILY_TREE_CONFIG || {};
-    const githubImageUploadUrl = String(config.githubImageUploadUrl || "").trim();
-
     let allImages = [];
 
-    function isVideoUrl(url) {
-        return url.match(/\.(mp4|webm|mov|ogg)$/i) || url.startsWith('data:video');
-    }
+    // ═══════════════════════════════════════════════════════
+    //  Gallery Rendering
+    // ═══════════════════════════════════════════════════════
 
-    // Utility: Convert File to Data URL
-    function fileToDataUrl(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(String(reader.result || ""));
-            reader.onerror = () => reject(reader.error || new Error("Unable to read the file."));
-            reader.readAsDataURL(file);
-        });
-    }
-
-    // Utility: Upload to external URL or fallback to Data URL
-    async function uploadPhotoToGitHub(file) {
-        if (!githubImageUploadUrl) {
-            return fileToDataUrl(file);
-        }
-
-        const formData = new FormData();
-        formData.append("file", file, file.name || "gallery-media");
-
-        const response = await fetch(githubImageUploadUrl, {
-            method: "POST",
-            body: formData
-        });
-
-        if (!response.ok) {
-            const message = await response.text();
-            throw new Error(message || "Could not upload the file.");
-        }
-
-        const result = await response.json().catch(() => ({}));
-        const imageUrl = String(result.imageUrl || result.url || result.rawUrl || "").trim();
-
-        if (!imageUrl) {
-            throw new Error("The upload service did not return a valid link.");
-        }
-
-        return imageUrl;
-    }
-
-    // Load and Render Gallery
     async function refreshGallery() {
         if (!window.FamilyTreeStore) return;
 
-        allImages = await window.FamilyTreeStore.loadGalleryImages();
+        // Use the namespaced gallery API, fall back to flat alias
+        const loader = window.FamilyTreeStore.gallery
+            ? window.FamilyTreeStore.gallery.load
+            : window.FamilyTreeStore.loadGalleryImages;
+
+        allImages = await loader();
         renderGallery(allImages);
         updateSortDropdowns(allImages);
     }
 
     function renderGallery(images) {
         if (!images || images.length === 0) {
-            galleryContainer.innerHTML = '';
+            galleryContainer.innerHTML = "";
             galleryContainer.appendChild(emptyState);
-            emptyState.style.display = 'block';
+            emptyState.style.display = "block";
             return;
         }
 
-        emptyState.style.display = 'none';
-        galleryContainer.innerHTML = '';
+        emptyState.style.display = "none";
+        galleryContainer.innerHTML = "";
 
         // Group by event_name
         const grouped = images.reduce((acc, img) => {
-            const event = img.event_name || 'General';
+            const event = img.event_name || "General";
             if (!acc[event]) acc[event] = [];
             acc[event].push(img);
             return acc;
         }, {});
 
-        // Sort keys (events) alphabetically
         const events = Object.keys(grouped).sort();
 
-        events.forEach(eventName => {
+        events.forEach((eventName) => {
             const eventDiv = document.createElement("div");
             eventDiv.className = "gallery-event";
             eventDiv.setAttribute("data-category", eventName);
-            
+
             const title = document.createElement("h2");
             title.textContent = eventName;
             eventDiv.appendChild(title);
@@ -110,20 +88,20 @@ document.addEventListener("DOMContentLoaded", () => {
             const scrollDiv = document.createElement("div");
             scrollDiv.className = "gallery-scroll";
 
-            grouped[eventName].forEach(imgData => {
+            grouped[eventName].forEach((imgData) => {
                 let media;
-                if (isVideoUrl(imgData.image_url)) {
+                if (U.isVideoUrl(imgData.image_url)) {
                     media = document.createElement("video");
                     media.controls = true;
-                    // Preload metadata to avoid fetching full video immediately
                     media.preload = "metadata";
                 } else {
                     media = document.createElement("img");
                     media.alt = eventName;
+                    media.loading = "lazy"; // performance: lazy-load images
                 }
                 media.src = imgData.image_url;
                 media.title = eventName;
-                media.style.objectFit = 'cover';
+                media.style.objectFit = "cover";
                 scrollDiv.appendChild(media);
             });
 
@@ -131,70 +109,71 @@ document.addEventListener("DOMContentLoaded", () => {
             galleryContainer.appendChild(eventDiv);
         });
 
-        if (sortSelect) {
-            applySort(sortSelect.value);
-        }
+        if (sortSelect) applySort(sortSelect.value);
     }
 
     function updateSortDropdowns(images) {
-        const eventsSet = new Set(images.map(img => img.event_name || 'General'));
+        const eventsSet = new Set(
+            images.map((img) => img.event_name || "General")
+        );
         const events = Array.from(eventsSet).sort();
 
-        // Update Sort Select
+        // Sort select
         if (sortSelect) {
             const currentVal = sortSelect.value;
-            sortSelect.innerHTML = '<option value="all">All Events</option>';
-            events.forEach(ev => {
+            sortSelect.innerHTML =
+                '<option value="all">All Events</option>';
+            events.forEach((ev) => {
                 const opt = document.createElement("option");
                 opt.value = ev;
                 opt.textContent = ev;
                 sortSelect.appendChild(opt);
             });
-            if (events.includes(currentVal)) {
-                sortSelect.value = currentVal;
-            } else {
-                sortSelect.value = 'all';
-            }
+            sortSelect.value = events.includes(currentVal)
+                ? currentVal
+                : "all";
         }
 
-        // Update Modal Event Select
+        // Modal event select
         if (eventSelect) {
             const currentVal = eventSelect.value;
-            eventSelect.innerHTML = '<option value="">-- Select Existing Event --</option>';
-            events.forEach(ev => {
+            eventSelect.innerHTML =
+                '<option value="">-- Select Existing Event --</option>';
+            events.forEach((ev) => {
                 const opt = document.createElement("option");
                 opt.value = ev;
                 opt.textContent = ev;
                 eventSelect.appendChild(opt);
             });
-            if (events.includes(currentVal)) {
-                eventSelect.value = currentVal;
-            } else {
-                eventSelect.value = '';
-            }
+            eventSelect.value = events.includes(currentVal)
+                ? currentVal
+                : "";
         }
     }
 
     function applySort(selected) {
-        const eventsElements = document.querySelectorAll(".gallery-event");
-        eventsElements.forEach(eventEl => {
-            const category = eventEl.getAttribute("data-category");
-            if (selected === "all" || category === selected) {
-                eventEl.style.display = "block";
-            } else {
-                eventEl.style.display = "none";
-            }
+        document.querySelectorAll(".gallery-event").forEach((el) => {
+            const cat = el.getAttribute("data-category");
+            el.style.display =
+                selected === "all" || cat === selected ? "block" : "none";
         });
     }
 
     if (sortSelect) {
-        sortSelect.addEventListener("change", (e) => applySort(e.target.value));
+        sortSelect.addEventListener("change", (e) =>
+            applySort(e.target.value)
+        );
     }
 
-    // Modal logic
+    // ═══════════════════════════════════════════════════════
+    //  Upload Modal
+    // ═══════════════════════════════════════════════════════
+
     function updateInputMode() {
-        const mode = document.querySelector('input[name="upload-mode"]:checked').value;
-        if (mode === 'files') {
+        const mode = document.querySelector(
+            'input[name="upload-mode"]:checked'
+        ).value;
+        if (mode === "files") {
             uploadInputLabel.textContent = "Select Files (Images or Videos)";
             fileInput.style.display = "block";
             folderInput.style.display = "none";
@@ -208,82 +187,116 @@ document.addEventListener("DOMContentLoaded", () => {
         selectionCount.textContent = "";
     }
 
-    modeRadios.forEach(radio => radio.addEventListener('change', updateInputMode));
+    modeRadios.forEach((radio) =>
+        radio.addEventListener("change", updateInputMode)
+    );
 
     function updateSelectionCount(files) {
-        const valid = Array.from(files).filter(f => f.type.startsWith('image/') || f.type.startsWith('video/'));
-        selectionCount.textContent = valid.length > 0 ? `Selected ${valid.length} media file(s)` : "";
+        const valid = Array.from(files).filter(
+            (f) =>
+                f.type.startsWith("image/") || f.type.startsWith("video/")
+        );
+        selectionCount.textContent =
+            valid.length > 0
+                ? `Selected ${valid.length} media file(s)`
+                : "";
     }
 
-    if (fileInput) fileInput.addEventListener('change', () => updateSelectionCount(fileInput.files));
-    if (folderInput) folderInput.addEventListener('change', () => updateSelectionCount(folderInput.files));
+    if (fileInput)
+        fileInput.addEventListener("change", () =>
+            updateSelectionCount(fileInput.files)
+        );
+    if (folderInput)
+        folderInput.addEventListener("change", () =>
+            updateSelectionCount(folderInput.files)
+        );
 
     function openModal() {
         uploadModal.classList.remove("hidden");
-        uploadModal.style.display = "flex";
+        uploadModal.classList.add("modal-visible");
         statusText.textContent = "";
         statusText.style.color = "#c2410c";
-        
+
         fileInput.value = "";
         folderInput.value = "";
         selectionCount.textContent = "";
         eventSelect.value = "";
         newEventInput.value = "";
-        
-        document.querySelector('input[name="upload-mode"][value="files"]').checked = true;
+
+        document.querySelector(
+            'input[name="upload-mode"][value="files"]'
+        ).checked = true;
         updateInputMode();
     }
 
     function closeModal() {
         uploadModal.classList.add("hidden");
-        uploadModal.style.display = "none";
+        uploadModal.classList.remove("modal-visible");
     }
 
-    if (addImageBtn) {
-        addImageBtn.addEventListener("click", openModal);
-    }
-    if (cancelBtn) {
-        cancelBtn.addEventListener("click", closeModal);
-    }
+    if (addImageBtn) addImageBtn.addEventListener("click", openModal);
+    if (cancelBtn) cancelBtn.addEventListener("click", closeModal);
 
-    // Submit logic
+    // ── Upload submission ───────────────────────────────────
+
     if (submitBtn) {
         submitBtn.addEventListener("click", async () => {
-            const mode = document.querySelector('input[name="upload-mode"]:checked').value;
-            const activeInput = mode === 'files' ? fileInput : folderInput;
-            
-            let allFiles = Array.from(activeInput.files);
-            let validFiles = allFiles.filter(f => f.type.startsWith('image/') || f.type.startsWith('video/'));
+            const mode = document.querySelector(
+                'input[name="upload-mode"]:checked'
+            ).value;
+            const activeInput = mode === "files" ? fileInput : folderInput;
+
+            const allFiles = Array.from(activeInput.files);
+            const validFiles = allFiles.filter(
+                (f) =>
+                    f.type.startsWith("image/") ||
+                    f.type.startsWith("video/")
+            );
 
             if (validFiles.length === 0) {
-                statusText.textContent = "Please select at least one valid image or video file.";
+                statusText.textContent =
+                    "Please select at least one valid image or video file.";
                 return;
             }
 
-            const evName = newEventInput.value.trim() || eventSelect.value || "General";
+            const evName =
+                newEventInput.value.trim() ||
+                eventSelect.value ||
+                "General";
 
-            if (!window.FamilyTreeStore || !window.FamilyTreeStore.isConfigured()) {
-                statusText.textContent = "Database not connected. Cannot save.";
+            if (
+                !window.FamilyTreeStore ||
+                !window.FamilyTreeStore.isConfigured()
+            ) {
+                statusText.textContent =
+                    "Database not connected. Cannot save.";
                 return;
             }
+
+            // Use the namespaced gallery API, fall back to flat alias
+            const addFn = window.FamilyTreeStore.gallery
+                ? window.FamilyTreeStore.gallery.add
+                : window.FamilyTreeStore.addGalleryImage;
 
             try {
                 submitBtn.disabled = true;
                 statusText.style.color = "#0e7490";
-                
-                let uploadedCount = 0;
-                const totalFiles = validFiles.length;
 
-                for (let i = 0; i < totalFiles; i++) {
+                let uploadedCount = 0;
+                const total = validFiles.length;
+
+                for (let i = 0; i < total; i++) {
                     const file = validFiles[i];
-                    submitBtn.textContent = `Uploading ${i + 1} of ${totalFiles}...`;
+                    submitBtn.textContent = `Uploading ${i + 1} of ${total}...`;
                     statusText.textContent = `Uploading "${file.name}"...`;
 
-                    // Upload to github / convert
-                    const imageUrl = await uploadPhotoToGitHub(file);
+                    // Upload via shared utility
+                    const imageUrl = await U.uploadMedia(
+                        file,
+                        githubImageUploadUrl
+                    );
 
-                    // Save to DB
-                    await window.FamilyTreeStore.addGalleryImage({
+                    await addFn({
                         event_name: evName,
                         image_url: imageUrl
                     });
@@ -292,7 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 statusText.textContent = `Success! Uploaded ${uploadedCount} file(s).`;
-                statusText.style.color = "#16a34a"; // Green
+                statusText.style.color = "#16a34a";
                 submitBtn.textContent = "Done";
 
                 setTimeout(() => {
@@ -301,17 +314,18 @@ document.addEventListener("DOMContentLoaded", () => {
                     submitBtn.disabled = false;
                     submitBtn.textContent = "Upload Media";
                 }, 1500);
-
             } catch (err) {
                 console.error(err);
                 statusText.style.color = "#c2410c";
-                statusText.textContent = err.message || "Something went wrong during upload.";
+                statusText.textContent =
+                    err.message || "Something went wrong during upload.";
                 submitBtn.disabled = false;
                 submitBtn.textContent = "Retry Upload";
             }
         });
     }
 
-    // Initial load
+    // ── Initial load ────────────────────────────────────────
+
     refreshGallery();
 });

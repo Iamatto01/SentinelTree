@@ -1,5 +1,21 @@
+/**
+ * add-people.js — Form logic for adding / editing family members
+ *
+ * Depends on: utils.js, family-data.js, data-store.js, app.js
+ *
+ * Uses FamilyDataRegistry for the connection dropdown instead of
+ * recursively crawling the old hardcoded tree on every refresh.
+ * Shared file-upload logic comes from SentinelUtils.
+ */
+
 document.addEventListener("DOMContentLoaded", () => {
+    "use strict";
+
+    const U = window.SentinelUtils;
     const config = window.FAMILY_TREE_CONFIG || {};
+    const githubImageUploadUrl = String(config.githubImageUploadUrl || "").trim();
+
+    // ── DOM refs ────────────────────────────────────────────
     const form = document.getElementById("person-form");
     const statusText = document.getElementById("add-person-status");
     const submitButton = document.getElementById("save-person-button");
@@ -10,21 +26,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const parentNameSelect = document.getElementById("parent-name");
     const parentNameHelp = document.getElementById("parent-name-help");
     const saveHint = document.getElementById("save-hint");
-    const githubImageUploadUrl = String(config.githubImageUploadUrl || "").trim();
-    const connectionOrder = ["Parent", "Sibling", "Partner", "Child", "Other"];
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const editId = urlParams.get('edit');
 
-    if (!form || !window.FamilyTreeStore) {
-        return;
-    }
+    const connectionOrder = ["Parent", "Sibling", "Partner", "Child", "Other"];
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const editId = urlParams.get("edit");
+
+    if (!form || !window.FamilyTreeStore) return;
+
+    // ── Status helpers ──────────────────────────────────────
 
     function updateStatus() {
         if (statusText) {
             statusText.textContent = window.FamilyTreeStore.statusLabel();
         }
-
         if (saveHint) {
             saveHint.textContent = window.FamilyTreeStore.isConfigured()
                 ? "Your details are ready to save."
@@ -33,16 +48,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function setConnectionHelp(message) {
-        if (parentNameHelp) {
-            parentNameHelp.textContent = message;
-        }
+        if (parentNameHelp) parentNameHelp.textContent = message;
     }
 
     function resetConnectionDropdown(promptText) {
-        if (!parentNameSelect) {
-            return;
-        }
-
+        if (!parentNameSelect) return;
         parentNameSelect.innerHTML = "";
         const placeholder = document.createElement("option");
         placeholder.value = "";
@@ -52,92 +62,52 @@ document.addEventListener("DOMContentLoaded", () => {
         parentNameSelect.appendChild(placeholder);
     }
 
+    // ── Dropdown population using FamilyDataRegistry ────────
+
     function groupPeopleByRelation(people) {
-        const grouped = new Map(connectionOrder.map((relation) => [relation, []]));
-
+        const grouped = new Map(connectionOrder.map((r) => [r, []]));
         people.forEach((person) => {
-            const relation = person.relation || "Other";
-            if (!grouped.has(relation)) {
-                grouped.set(relation, []);
-            }
-
-            grouped.get(relation).push(person);
+            const rel = person.relation || "Other";
+            if (!grouped.has(rel)) grouped.set(rel, []);
+            grouped.get(rel).push(person);
         });
-
         return grouped;
     }
 
-    function collectSeedPeople(root, relation = "Other", collection = [], seen = new Set()) {
-        if (!root) {
-            return collection;
-        }
-
-        if (Array.isArray(root)) {
-            root.forEach((item) => collectSeedPeople(item, relation, collection, seen));
-            return collection;
-        }
-
-        if (typeof root !== "object") {
-            return collection;
-        }
-
-        if (root.name) {
-            const key = `${root.name}::${relation}`;
-            if (!seen.has(key)) {
-                seen.add(key);
-                collection.push({
-                    name: root.name,
-                    relation
-                });
-            }
-        }
-
-        const relationMap = {
-            parents: "Parent",
-            siblings: "Sibling",
-            children: "Child",
-            partner: "Partner"
-        };
-
-        Object.entries(relationMap).forEach(([key, nextRelation]) => {
-            if (root[key]) {
-                collectSeedPeople(root[key], nextRelation, collection, seen);
-            }
-        });
-
-        return collection;
-    }
-
+    /**
+     * Build the list of people for the connection dropdown.
+     * Uses the FamilyDataRegistry (O(1) lookups) instead of
+     * the old recursive tree crawl.
+     */
     function getSeedPeople() {
-        if (typeof familyTreeData === "undefined") {
-            return [];
-        }
+        if (!window.familyRegistry) return [];
 
-        return collectSeedPeople(familyTreeData);
+        return window.familyRegistry.getAll().map((p) => ({
+            name: p.name,
+            relation: window.familyRegistry.deriveRole(p.id)
+        }));
     }
 
     function dedupePeople(people) {
         const seen = new Set();
-
-        return people.filter((person) => {
-            const key = `${person.name || ""}::${person.relation || "Other"}`;
-            if (seen.has(key)) {
-                return false;
-            }
-
+        return people.filter((p) => {
+            const key = `${p.name || ""}::${p.relation || "Other"}`;
+            if (seen.has(key)) return false;
             seen.add(key);
             return true;
         });
     }
 
     async function refreshConnectionDropdown() {
-        if (!parentNameSelect) {
-            return;
-        }
+        if (!parentNameSelect) return;
 
         const configured = window.FamilyTreeStore.isConfigured();
         parentNameSelect.disabled = true;
-        resetConnectionDropdown(configured ? "Loading saved family members..." : "Loading family members...");
+        resetConnectionDropdown(
+            configured
+                ? "Loading saved family members..."
+                : "Loading family members..."
+        );
         setConnectionHelp(
             configured
                 ? "Choose an existing family member so the connection stays attached to a saved record."
@@ -145,32 +115,33 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
         let people = getSeedPeople();
+
         if (configured) {
             try {
                 const savedPeople = await window.FamilyTreeStore.loadPeople();
                 people = [...savedPeople, ...people];
-            } catch (error) {
-                people = [...people];
+            } catch (_) {
+                // keep seed people only
             }
         }
 
-        const mergedPeople = dedupePeople(people);
+        const merged = dedupePeople(people);
 
         resetConnectionDropdown(
-            mergedPeople.length > 0 ? "Select connected parent or sibling" : "No saved family members yet"
+            merged.length > 0
+                ? "Select connected parent or sibling"
+                : "No saved family members yet"
         );
 
-        if (mergedPeople.length === 0) {
+        if (merged.length === 0) {
             setConnectionHelp("Save one person first, then choose them here.");
             return;
         }
 
-        const groupedPeople = groupPeopleByRelation(mergedPeople);
+        const grouped = groupPeopleByRelation(merged);
         connectionOrder.forEach((relation) => {
-            const entries = groupedPeople.get(relation) || [];
-            if (entries.length === 0) {
-                return;
-            }
+            const entries = grouped.get(relation) || [];
+            if (entries.length === 0) return;
 
             const group = document.createElement("optgroup");
             group.label = relation;
@@ -189,17 +160,11 @@ document.addEventListener("DOMContentLoaded", () => {
         parentNameSelect.value = "";
     }
 
-    function fileToDataUrl(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(String(reader.result || ""));
-            reader.onerror = () => reject(reader.error || new Error("Unable to read the image."));
-            reader.readAsDataURL(file);
-        });
-    }
+    // ── Photo helpers (using shared utils) ──────────────────
 
     async function syncPreviewFromFile() {
-        const file = photoInput && photoInput.files ? photoInput.files[0] : null;
+        const file =
+            photoInput && photoInput.files ? photoInput.files[0] : null;
         if (!file) {
             if (photoPreview) {
                 photoPreview.classList.add("hidden");
@@ -208,63 +173,36 @@ document.addEventListener("DOMContentLoaded", () => {
             return "";
         }
 
-        const dataUrl = await fileToDataUrl(file);
+        const dataUrl = await U.fileToDataUrl(file);
         if (photoPreview) {
             photoPreview.src = dataUrl;
             photoPreview.classList.remove("hidden");
         }
-
         return dataUrl;
     }
 
-    async function uploadPhotoToGitHub(file) {
-        if (!githubImageUploadUrl) {
-            return fileToDataUrl(file);
-        }
-
-        const formData = new FormData();
-        formData.append("file", file, file.name || "family-photo");
-
-        const response = await fetch(githubImageUploadUrl, {
-            method: "POST",
-            body: formData
-        });
-
-        if (!response.ok) {
-            const message = await response.text();
-            throw new Error(message || "Could not upload the image.");
-        }
-
-        const result = await response.json().catch(() => ({}));
-        const imageUrl = String(result.imageUrl || result.url || result.rawUrl || "").trim();
-
-        if (!imageUrl) {
-            throw new Error("The upload service did not return an image link.");
-        }
-
-        return imageUrl;
-    }
-
     async function resolveImageUrl() {
-        const selectedFile = photoInput && photoInput.files ? photoInput.files[0] : null;
+        const selectedFile =
+            photoInput && photoInput.files ? photoInput.files[0] : null;
 
         if (photoUrlInput && photoUrlInput.value.trim()) {
             return photoUrlInput.value.trim();
         }
 
         if (selectedFile) {
-            return uploadPhotoToGitHub(selectedFile);
+            return U.uploadMedia(selectedFile, githubImageUploadUrl);
         }
 
         return "";
     }
 
+    // ── Events ──────────────────────────────────────────────
+
     if (photoInput) {
         photoInput.addEventListener("change", () => {
             syncPreviewFromFile().catch(() => {
-                if (statusText) {
+                if (statusText)
                     statusText.textContent = "Could not read that image file.";
-                }
             });
         });
     }
@@ -277,22 +215,48 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // ── Form submission (with double-submit protection) ─────
+
+    let submitting = false;
+
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
 
+        if (submitting) return;
+        submitting = true;
+
+        // Client-side validation
+        const nameInput = document.getElementById("name");
+        if (!nameInput || !nameInput.value.trim()) {
+            if (statusText) statusText.textContent = "Name is required.";
+            submitting = false;
+            return;
+        }
+
         await syncPreviewFromFile().catch(() => "");
-        const imageUrl = await resolveImageUrl().catch((error) => {
-            throw error;
-        });
+
+        let imageUrl;
+        try {
+            imageUrl = await resolveImageUrl();
+        } catch (err) {
+            if (statusText)
+                statusText.textContent =
+                    err.message || "Could not process the photo.";
+            submitting = false;
+            return;
+        }
+
         const phoneInput = document.getElementById("phone");
         const payload = {
-            name: document.getElementById("name").value.trim(),
+            name: nameInput.value.trim(),
             relation: document.getElementById("relation").value,
             birthday: document.getElementById("birthday").value.trim(),
             birthPlace: document.getElementById("birth-place").value.trim(),
             occupation: document.getElementById("occupation").value.trim(),
             phone: phoneInput ? phoneInput.value.trim() : "",
-            parentName: parentNameSelect ? parentNameSelect.value.trim() : "",
+            parentName: parentNameSelect
+                ? parentNameSelect.value.trim()
+                : "",
             partnerName: document.getElementById("partner-name").value.trim(),
             notes: document.getElementById("notes").value.trim(),
             imageUrl: imageUrl || "images/placeholder.png"
@@ -304,72 +268,109 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             if (editId && window.FamilyTreeStore.updatePerson) {
                 await window.FamilyTreeStore.updatePerson(editId, payload);
-                if (statusText) statusText.textContent = "Record updated successfully.";
+                if (statusText)
+                    statusText.textContent = "Record updated successfully.";
                 submitButton.textContent = "Saved";
-                setTimeout(() => window.location.href = "index.html", 1500);
+                setTimeout(
+                    () => (window.location.href = "index.html"),
+                    1500
+                );
             } else {
                 await window.FamilyTreeStore.addPerson(payload);
                 updateStatus();
                 form.reset();
+
                 if (photoPreview) {
                     photoPreview.classList.add("hidden");
                     photoPreview.removeAttribute("src");
                 }
-                if (photoUrlInput) {
-                    photoUrlInput.value = "";
-                }
-                if (relationInput) {
-                    relationInput.value = "Other";
-                }
+                if (photoUrlInput) photoUrlInput.value = "";
+                if (relationInput) relationInput.value = "Other";
+
                 await refreshConnectionDropdown();
-                if (parentNameSelect) {
-                    parentNameSelect.value = "";
-                }
+                if (parentNameSelect) parentNameSelect.value = "";
+
                 if (statusText) {
-                    statusText.textContent = "Saved. Return to the tree to see the latest additions.";
+                    statusText.textContent =
+                        "Saved. Return to the tree to see the latest additions.";
                 }
+
+                // Dispatch event so other open tabs / components can react
+                window.dispatchEvent(
+                    new CustomEvent("family-person-added", {
+                        detail: payload
+                    })
+                );
             }
         } catch (error) {
             if (statusText) {
-                statusText.textContent = error && error.message ? error.message : "Could not save this person.";
+                statusText.textContent =
+                    error && error.message
+                        ? error.message
+                        : "Could not save this person.";
             }
         } finally {
             submitButton.disabled = false;
             submitButton.textContent = "Save person";
+            submitting = false;
         }
     });
 
+    // ── Initialisation ──────────────────────────────────────
+
     updateStatus();
+
     refreshConnectionDropdown().then(async () => {
         if (editId && window.FamilyTreeStore.getPerson) {
             try {
                 const person = await window.FamilyTreeStore.getPerson(editId);
                 if (person) {
-                    document.getElementById("name").value = person.name || "";
-                    if (relationInput) relationInput.value = person.relation || "Other";
-                    document.getElementById("birthday").value = person.birthday || "";
-                    document.getElementById("birth-place").value = person.birthPlace || "";
-                    document.getElementById("occupation").value = person.occupation || "";
+                    document.getElementById("name").value =
+                        person.name || "";
+                    if (relationInput)
+                        relationInput.value = person.relation || "Other";
+                    document.getElementById("birthday").value =
+                        person.birthday || "";
+                    document.getElementById("birth-place").value =
+                        person.birthPlace || "";
+                    document.getElementById("occupation").value =
+                        person.occupation || "";
                     const phoneInput = document.getElementById("phone");
                     if (phoneInput) phoneInput.value = person.phone || "";
-                    if (parentNameSelect) parentNameSelect.value = person.parentName || "";
-                    document.getElementById("partner-name").value = person.partnerName || "";
-                    document.getElementById("notes").value = person.notes || "";
-                    if (person.imageUrl && photoPreview && person.imageUrl !== "images/placeholder.png") {
+                    if (parentNameSelect)
+                        parentNameSelect.value = person.parentName || "";
+                    document.getElementById("partner-name").value =
+                        person.partnerName || "";
+                    document.getElementById("notes").value =
+                        person.notes || "";
+
+                    if (
+                        person.imageUrl &&
+                        photoPreview &&
+                        person.imageUrl !== "images/placeholder.png"
+                    ) {
                         photoPreview.src = person.imageUrl;
                         photoPreview.classList.remove("hidden");
-                        if (photoUrlInput && person.imageUrl.startsWith("http")) {
+                        if (
+                            photoUrlInput &&
+                            person.imageUrl.startsWith("http")
+                        ) {
                             photoUrlInput.value = person.imageUrl;
                         }
                     }
+
                     submitButton.textContent = "Update person";
-                    const pageTitle = document.querySelector(".hero-copy h1");
-                    if (pageTitle) pageTitle.textContent = "Edit relative.";
-                    const eyebrow = document.querySelector(".eyebrow");
+                    const pageTitle = document.querySelector(
+                        ".hero-copy h1"
+                    );
+                    if (pageTitle)
+                        pageTitle.textContent = "Edit relative.";
+                    const eyebrow =
+                        document.querySelector(".eyebrow");
                     if (eyebrow) eyebrow.textContent = "Edit person";
                 }
             } catch (err) {
-                console.error("Failed to load person for edit", err);
+                console.error("Failed to load person for edit:", err);
             }
         }
     });
