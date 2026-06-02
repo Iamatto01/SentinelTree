@@ -42,31 +42,50 @@
 
         // ── Grandparents (paternal) ──────────────────────────
         {
-            id: "gp-adi",
-            name: "Adi",
-            birthday: "Feb 20, 1942",
-            image: "images/Adi.png",
-            partnerId: "gp-awang",
-            childIds: ["p-mohd-jamal", "p-uncle-bob"]
+            id: "gp-rodiah",
+            name: "Hjh Rodiah",
+            fullName: "Hjh Rodiah @ Adi Mohd Yunus",
+            title: "Dato Batul",
+            birthday: "",
+            image: "images/Rodiah.png",
+            partnerId: "gp-awang-matsidek",
+            childIds: [
+                "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
+                "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
+                "p-rosmawati", "p-mohd-zahari", "p-normalina",
+                "p-norliana", "p-nur-suhaidah"
+            ]
         },
         {
-            id: "gp-awang",
-            name: "Awang",
-            birthday: "Dec 15, 1939",
+            id: "gp-awang-matsidek",
+            name: "Hj Awang Mat Sidek",
+            fullName: "Hj Awang Mat Sidek @ Daud",
+            title: "Dato Tiri",
+            birthday: "",
             image: "images/Awang.png",
-            partnerId: "gp-adi",
-            childIds: ["p-mohd-jamal", "p-uncle-bob"]
+            partnerId: "gp-rodiah",
+            childIds: [
+                "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
+                "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
+                "p-rosmawati", "p-mohd-zahari", "p-normalina",
+                "p-norliana", "p-nur-suhaidah"
+            ]
         },
 
         // ── Parents ──────────────────────────────────────────
         {
             id: "p-mohd-jamal",
-            name: "Mohd Jamal",
+            name: "Mohd Jamal Awang",
             birthday: "Aug 10, 1967",
             image: "images/Abah.png",
             partnerId: "p-maimunah",
-            parentIds: ["gp-adi", "gp-awang"],
-            siblingIds: ["p-uncle-bob"],
+            parentIds: ["gp-rodiah", "gp-awang-matsidek"],
+            siblingIds: [
+                "p-saadiah", "p-fauziah", "p-salina",
+                "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
+                "p-rosmawati", "p-mohd-zahari", "p-normalina",
+                "p-norliana", "p-nur-suhaidah"
+            ],
             childIds: [
                 "c-muizzuddin", "c-fatihah", "c-nasirruddin",
                 "c-zahiruddin", "c-faizah", "c-saifudin", "c-farisha"
@@ -104,14 +123,166 @@
             parentIds: ["gp-yusoff", "gp-zainab"],
             siblingIds: ["p-maimunah", "p-ismail"]
         },
+        // ── Paternal Aunts / Uncles (siblings of Mohd Jamal) ────
         {
-            id: "p-uncle-bob",
-            name: "Uncle Bob",
-            birthday: "May 12, 1967",
-            image: "images/uncle_bob.jpg",
-            parentIds: ["gp-adi", "gp-awang"],
-            siblingIds: ["p-mohd-jamal"],
-            childIds: ["cousin-jake", "cousin-lily"]
+            id: "p-saadiah",
+            name: "Saadiah Awang",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["gp-rodiah", "gp-awang-matsidek"],
+            siblingIds: [
+                "p-fauziah", "p-salina", "p-mohd-jamal",
+                "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
+                "p-rosmawati", "p-mohd-zahari", "p-normalina",
+                "p-norliana", "p-nur-suhaidah"
+            ]
+        },
+        {
+            id: "p-fauziah",
+            name: "Fauziah Awang",
+            deceased: true,
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["gp-rodiah", "gp-awang-matsidek"],
+            siblingIds: [
+                "p-saadiah", "p-salina", "p-mohd-jamal",
+                "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
+                "p-rosmawati", "p-mohd-zahari", "p-normalina",
+                "p-norliana", "p-nur-suhaidah"
+            ]
+        },
+        {
+            id: "p-salina",
+            name: "Salina Awang",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["gp-rodiah", "gp-awang-matsidek"],
+            siblingIds: [
+                "p-saadiah", "p-fauziah", "p-mohd-jamal",
+                "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
+                "p-rosmawati", "p-mohd-zahari", "p-normalina",
+                "p-norliana", "p-nur-suhaidah"
+            ]
+        },
+        {
+            id: "p-md-yacob",
+            name: "Md Yacob Awang",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["gp-rodiah", "gp-awang-matsidek"],
+            siblingIds: [
+                "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
+                "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
+                "p-rosmawati", "p-mohd-zahari", "p-normalina",
+                "p-norliana", "p-nur-suhaidah"
+            ]
+        },
+        {
+            id: "p-salmah",
+            name: "Salmah Awang",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["gp-rodiah", "gp-awang-matsidek"],
+            siblingIds: [
+                "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
+                "p-md-yacob", "p-mohd-ariffin", "p-mohd-hairi",
+                "p-rosmawati", "p-mohd-zahari", "p-normalina",
+                "p-norliana", "p-nur-suhaidah"
+            ]
+        },
+        {
+            id: "p-mohd-hairi",
+            name: "Mohd Hairi Awang",
+            deceased: true,
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["gp-rodiah", "gp-awang-matsidek"],
+            siblingIds: [
+                "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
+                "p-md-yacob", "p-salmah", "p-mohd-ariffin",
+                "p-rosmawati", "p-mohd-zahari", "p-normalina",
+                "p-norliana", "p-nur-suhaidah"
+            ]
+        },
+        {
+            id: "p-rosmawati",
+            name: "Rosmawati Awang",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["gp-rodiah", "gp-awang-matsidek"],
+            siblingIds: [
+                "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
+                "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
+                "p-mohd-zahari", "p-normalina",
+                "p-norliana", "p-nur-suhaidah"
+            ]
+        },
+        {
+            id: "p-mohd-ariffin",
+            name: "Mohd Ariffin Awang",
+            deceased: true,
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["gp-rodiah", "gp-awang-matsidek"],
+            siblingIds: [
+                "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
+                "p-md-yacob", "p-salmah", "p-mohd-hairi",
+                "p-rosmawati", "p-mohd-zahari", "p-normalina",
+                "p-norliana", "p-nur-suhaidah"
+            ]
+        },
+        {
+            id: "p-mohd-zahari",
+            name: "Mohd Zahari Awang",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["gp-rodiah", "gp-awang-matsidek"],
+            siblingIds: [
+                "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
+                "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
+                "p-rosmawati", "p-normalina",
+                "p-norliana", "p-nur-suhaidah"
+            ]
+        },
+        {
+            id: "p-normalina",
+            name: "Normalina Awang",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["gp-rodiah", "gp-awang-matsidek"],
+            siblingIds: [
+                "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
+                "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
+                "p-rosmawati", "p-mohd-zahari",
+                "p-norliana", "p-nur-suhaidah"
+            ]
+        },
+        {
+            id: "p-norliana",
+            name: "Norliana Awang",
+            deceased: true,
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["gp-rodiah", "gp-awang-matsidek"],
+            siblingIds: [
+                "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
+                "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
+                "p-rosmawati", "p-mohd-zahari", "p-normalina",
+                "p-nur-suhaidah"
+            ]
+        },
+        {
+            id: "p-nur-suhaidah",
+            name: "Nur Suhaidah Awang",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["gp-rodiah", "gp-awang-matsidek"],
+            siblingIds: [
+                "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
+                "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
+                "p-rosmawati", "p-mohd-zahari", "p-normalina",
+                "p-norliana"
+            ]
         },
 
         // ── Cousins ──────────────────────────────────────────
@@ -129,20 +300,7 @@
             image: "images/cousin_mike.jpg",
             parentIds: ["p-ismail"]
         },
-        {
-            id: "cousin-jake",
-            name: "Cousin Jake",
-            birthday: "Oct 10, 1993",
-            image: "images/cousin_jake.jpg",
-            parentIds: ["p-uncle-bob"]
-        },
-        {
-            id: "cousin-lily",
-            name: "Cousin Lily",
-            birthday: "Dec 25, 2000",
-            image: "images/cousin_lily.jpg",
-            parentIds: ["p-uncle-bob"]
-        },
+
 
         // ── Children (generation 3) ──────────────────────────
 

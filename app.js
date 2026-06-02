@@ -98,7 +98,7 @@
             this.modal.classList.remove("hidden");
             this.modal.setAttribute("aria-hidden", "false");
 
-            this.els.name.textContent = person.name || "Unknown";
+            this.els.name.textContent = person.fullName || person.name || "Unknown";
             this.els.avatar.src = person.image || person.imageUrl || U.FALLBACK_AVATAR;
 
             // Subtitle: birthday + age
@@ -117,11 +117,28 @@
                 this.els.tags.appendChild(span);
             });
 
+            // Title (e.g. Dato Batul, Dato Tiri)
+            if (person.title) {
+                const titleTag = document.createElement("span");
+                titleTag.className = "tag tag--title";
+                titleTag.textContent = person.title;
+                this.els.tags.prepend(titleTag);
+            }
+
+            // Deceased indicator
+            if (person.deceased) {
+                const deceasedTag = document.createElement("span");
+                deceasedTag.className = "tag tag--deceased";
+                deceasedTag.textContent = "Al-Fatihah";
+                this.els.tags.appendChild(deceasedTag);
+            }
+
             // Essential info
             this.els.birth.textContent = person.birthday || "Unknown";
             this.els.place.textContent =
                 person.birthPlace || person.birth_place || "Unknown";
             this.els.death.textContent =
+                person.deceased ? "Al-Fatihah (Deceased)" :
                 person.deathDate || person.death_date || "Living";
             this.els.occupation.textContent = person.occupation || "Unknown";
             if (this.els.phone) {
@@ -356,6 +373,9 @@
         _createBubble(person, role) {
             const bubble = document.createElement("div");
             bubble.classList.add("bubble", `bubble--${role}`);
+            if (person.deceased) {
+                bubble.classList.add("bubble--deceased");
+            }
             bubble.setAttribute("tabindex", "0");
             bubble.setAttribute("role", "button");
             bubble.title = "Tap to explore this branch";
