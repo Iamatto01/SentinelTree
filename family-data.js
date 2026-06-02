@@ -18,6 +18,74 @@
     // are expressed via ID arrays that the Registry resolves.
 
     const SEED_PEOPLE = [
+        // ── Great-Grandparents (Rodiah's parents) ────────────
+        {
+            id: "ggp-mohd-yunus",
+            name: "Mohd Yunus",
+            birthday: "",
+            image: "images/default.png",
+            partnerId: "ggp-mohd-yunus-wife",
+            childIds: [
+                "gs-mariyam", "gp-rodiah", "gs-rahmah", "gs-fatimah",
+                "gs-mohd-idris", "gs-anah", "gs-norsiah", "gs-kamat"
+            ]
+        },
+        {
+            id: "ggp-mohd-yunus-wife",
+            name: "Isteri Mohd Yunus",
+            birthday: "",
+            image: "images/default.png",
+            partnerId: "ggp-mohd-yunus",
+            childIds: [
+                "gs-mariyam", "gp-rodiah", "gs-rahmah", "gs-fatimah",
+                "gs-mohd-idris", "gs-anah", "gs-norsiah", "gs-kamat"
+            ]
+        },
+
+        // ── Great-Grandparents (Awang's parents) ─────────────
+        // Mat Sidek + Ibu Awang (full siblings)
+        {
+            id: "ggp-matsidek",
+            name: "Mat Sidek",
+            birthday: "",
+            image: "images/default.png",
+            partnerId: "ggp-awang-mother",
+            childIds: [
+                "gs-hassim", "gp-awang-matsidek", "gs-hussein",
+                "gs-nya", "gs-chik", "gs-tik", "gs-hasan", "gs-hashim"
+            ]
+        },
+        {
+            id: "ggp-awang-mother",
+            name: "Ibu Awang",
+            birthday: "",
+            image: "images/default.png",
+            partnerId: "ggp-matsidek",
+            childIds: [
+                "gs-hassim", "gp-awang-matsidek", "gs-hussein",
+                "gs-munah", "gs-abu"
+            ]
+        },
+        // Daud (father of Munah & Abu — same mother, different father)
+        {
+            id: "ggp-daud",
+            name: "Daud",
+            birthday: "",
+            image: "images/default.png",
+            childIds: ["gs-munah", "gs-abu"]
+        },
+        // Isteri Mat Sidek #2 (from Duyung, Melaka — same father, different mother)
+        {
+            id: "ggp-matsidek-wife2",
+            name: "Isteri Mat Sidek (Duyung)",
+            notes: "Dari Duyung, Melaka",
+            birthday: "",
+            image: "images/default.png",
+            childIds: [
+                "gs-nya", "gs-chik", "gs-tik", "gs-hasan", "gs-hashim"
+            ]
+        },
+
         // ── Grandparents (maternal) ──────────────────────────
         {
             id: "gp-yusoff",
@@ -49,11 +117,16 @@
             birthday: "",
             image: "images/Rodiah.png",
             partnerId: "gp-awang-matsidek",
+            parentIds: ["ggp-mohd-yunus", "ggp-mohd-yunus-wife"],
+            siblingIds: [
+                "gs-mariyam", "gs-rahmah", "gs-fatimah",
+                "gs-mohd-idris", "gs-anah", "gs-norsiah", "gs-kamat"
+            ],
             childIds: [
                 "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
                 "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
                 "p-rosmawati", "p-mohd-zahari", "p-normalina",
-                "p-norliana", "p-nur-suhaidah"
+                "p-norliana", "p-nor-suhaidah"
             ]
         },
         {
@@ -64,12 +137,190 @@
             birthday: "",
             image: "images/Awang.png",
             partnerId: "gp-rodiah",
+            parentIds: ["ggp-matsidek", "ggp-awang-mother"],
+            siblingIds: [
+                "gs-hassim", "gs-hussein",
+                "gs-munah", "gs-abu",
+                "gs-nya", "gs-chik", "gs-tik", "gs-hasan", "gs-hashim"
+            ],
             childIds: [
                 "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
                 "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
                 "p-rosmawati", "p-mohd-zahari", "p-normalina",
-                "p-norliana", "p-nur-suhaidah"
+                "p-norliana", "p-nor-suhaidah"
             ]
+        },
+
+        // ── Siblings of Hjh Rodiah (anak Mohd Yunus) ─────────
+        {
+            id: "gs-mariyam",
+            name: "Mariyam",
+            fullName: "Mariyam Mohd Yunus",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["ggp-mohd-yunus", "ggp-mohd-yunus-wife"],
+            siblingIds: [
+                "gp-rodiah", "gs-rahmah", "gs-fatimah",
+                "gs-mohd-idris", "gs-anah", "gs-norsiah", "gs-kamat"
+            ]
+        },
+        {
+            id: "gs-rahmah",
+            name: "Rahmah",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["ggp-mohd-yunus", "ggp-mohd-yunus-wife"],
+            siblingIds: [
+                "gs-mariyam", "gp-rodiah", "gs-fatimah",
+                "gs-mohd-idris", "gs-anah", "gs-norsiah", "gs-kamat"
+            ]
+        },
+        {
+            id: "gs-fatimah",
+            name: "Fatimah",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["ggp-mohd-yunus", "ggp-mohd-yunus-wife"],
+            siblingIds: [
+                "gs-mariyam", "gp-rodiah", "gs-rahmah",
+                "gs-mohd-idris", "gs-anah", "gs-norsiah", "gs-kamat"
+            ]
+        },
+        {
+            id: "gs-mohd-idris",
+            name: "Mohd Idris",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["ggp-mohd-yunus", "ggp-mohd-yunus-wife"],
+            siblingIds: [
+                "gs-mariyam", "gp-rodiah", "gs-rahmah", "gs-fatimah",
+                "gs-anah", "gs-norsiah", "gs-kamat"
+            ]
+        },
+        {
+            id: "gs-anah",
+            name: "Anah",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["ggp-mohd-yunus", "ggp-mohd-yunus-wife"],
+            siblingIds: [
+                "gs-mariyam", "gp-rodiah", "gs-rahmah", "gs-fatimah",
+                "gs-mohd-idris", "gs-norsiah", "gs-kamat"
+            ]
+        },
+        {
+            id: "gs-norsiah",
+            name: "Norsiah",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["ggp-mohd-yunus", "ggp-mohd-yunus-wife"],
+            siblingIds: [
+                "gs-mariyam", "gp-rodiah", "gs-rahmah", "gs-fatimah",
+                "gs-mohd-idris", "gs-anah", "gs-kamat"
+            ]
+        },
+        {
+            id: "gs-kamat",
+            name: "Kamat",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["ggp-mohd-yunus", "ggp-mohd-yunus-wife"],
+            siblingIds: [
+                "gs-mariyam", "gp-rodiah", "gs-rahmah", "gs-fatimah",
+                "gs-mohd-idris", "gs-anah", "gs-norsiah"
+            ]
+        },
+
+        // ── Siblings of Atok Awang ───────────────────────────
+        // Satu emak dan ayah (full siblings)
+        {
+            id: "gs-hassim",
+            name: "Hassim",
+            fullName: "Hassim Mat Sidek",
+            notes: "Satu emak dan ayah",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["ggp-matsidek", "ggp-awang-mother"],
+            siblingIds: ["gp-awang-matsidek", "gs-hussein"]
+        },
+        {
+            id: "gs-hussein",
+            name: "Hussein",
+            notes: "Satu emak dan ayah",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["ggp-matsidek", "ggp-awang-mother"],
+            siblingIds: ["gs-hassim", "gp-awang-matsidek"]
+        },
+
+        // Satu emak lain ayah (same mother, different father — Daud)
+        {
+            id: "gs-munah",
+            name: "Munah",
+            fullName: "Munah Daud",
+            notes: "Satu emak lain ayah",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["ggp-daud", "ggp-awang-mother"],
+            siblingIds: ["gs-abu"]
+        },
+        {
+            id: "gs-abu",
+            name: "Abu",
+            fullName: "Abu Daud",
+            notes: "Satu emak lain ayah",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["ggp-daud", "ggp-awang-mother"],
+            siblingIds: ["gs-munah"]
+        },
+
+        // Satu ayah lain emak (same father, different mother — Duyung, Melaka)
+        {
+            id: "gs-nya",
+            name: "Nya",
+            fullName: "Nya Binti Mat Sidek",
+            notes: "Satu ayah lain emak (Duyung, Melaka)",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["ggp-matsidek", "ggp-matsidek-wife2"],
+            siblingIds: ["gs-chik", "gs-tik", "gs-hasan", "gs-hashim"]
+        },
+        {
+            id: "gs-chik",
+            name: "Chik",
+            notes: "Satu ayah lain emak (Duyung, Melaka)",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["ggp-matsidek", "ggp-matsidek-wife2"],
+            siblingIds: ["gs-nya", "gs-tik", "gs-hasan", "gs-hashim"]
+        },
+        {
+            id: "gs-tik",
+            name: "Tik",
+            notes: "Satu ayah lain emak (Duyung, Melaka)",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["ggp-matsidek", "ggp-matsidek-wife2"],
+            siblingIds: ["gs-nya", "gs-chik", "gs-hasan", "gs-hashim"]
+        },
+        {
+            id: "gs-hasan",
+            name: "Hasan",
+            notes: "Satu ayah lain emak (Duyung, Melaka)",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["ggp-matsidek", "ggp-matsidek-wife2"],
+            siblingIds: ["gs-nya", "gs-chik", "gs-tik", "gs-hashim"]
+        },
+        {
+            id: "gs-hashim",
+            name: "Hashim",
+            notes: "Satu ayah lain emak (Duyung, Melaka)",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["ggp-matsidek", "ggp-matsidek-wife2"],
+            siblingIds: ["gs-nya", "gs-chik", "gs-tik", "gs-hasan"]
         },
 
         // ── Parents ──────────────────────────────────────────
@@ -84,7 +335,7 @@
                 "p-saadiah", "p-fauziah", "p-salina",
                 "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
                 "p-rosmawati", "p-mohd-zahari", "p-normalina",
-                "p-norliana", "p-nur-suhaidah"
+                "p-norliana", "p-nor-suhaidah"
             ],
             childIds: [
                 "c-muizzuddin", "c-fatihah", "c-nasirruddin",
@@ -134,7 +385,7 @@
                 "p-fauziah", "p-salina", "p-mohd-jamal",
                 "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
                 "p-rosmawati", "p-mohd-zahari", "p-normalina",
-                "p-norliana", "p-nur-suhaidah"
+                "p-norliana", "p-nor-suhaidah"
             ]
         },
         {
@@ -148,7 +399,7 @@
                 "p-saadiah", "p-salina", "p-mohd-jamal",
                 "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
                 "p-rosmawati", "p-mohd-zahari", "p-normalina",
-                "p-norliana", "p-nur-suhaidah"
+                "p-norliana", "p-nor-suhaidah"
             ]
         },
         {
@@ -161,7 +412,7 @@
                 "p-saadiah", "p-fauziah", "p-mohd-jamal",
                 "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
                 "p-rosmawati", "p-mohd-zahari", "p-normalina",
-                "p-norliana", "p-nur-suhaidah"
+                "p-norliana", "p-nor-suhaidah"
             ]
         },
         {
@@ -174,7 +425,7 @@
                 "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
                 "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
                 "p-rosmawati", "p-mohd-zahari", "p-normalina",
-                "p-norliana", "p-nur-suhaidah"
+                "p-norliana", "p-nor-suhaidah"
             ]
         },
         {
@@ -187,7 +438,7 @@
                 "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
                 "p-md-yacob", "p-mohd-ariffin", "p-mohd-hairi",
                 "p-rosmawati", "p-mohd-zahari", "p-normalina",
-                "p-norliana", "p-nur-suhaidah"
+                "p-norliana", "p-nor-suhaidah"
             ]
         },
         {
@@ -201,7 +452,7 @@
                 "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
                 "p-md-yacob", "p-salmah", "p-mohd-ariffin",
                 "p-rosmawati", "p-mohd-zahari", "p-normalina",
-                "p-norliana", "p-nur-suhaidah"
+                "p-norliana", "p-nor-suhaidah"
             ]
         },
         {
@@ -214,7 +465,7 @@
                 "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
                 "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
                 "p-mohd-zahari", "p-normalina",
-                "p-norliana", "p-nur-suhaidah"
+                "p-norliana", "p-nor-suhaidah"
             ]
         },
         {
@@ -228,7 +479,7 @@
                 "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
                 "p-md-yacob", "p-salmah", "p-mohd-hairi",
                 "p-rosmawati", "p-mohd-zahari", "p-normalina",
-                "p-norliana", "p-nur-suhaidah"
+                "p-norliana", "p-nor-suhaidah"
             ]
         },
         {
@@ -241,7 +492,7 @@
                 "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
                 "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
                 "p-rosmawati", "p-normalina",
-                "p-norliana", "p-nur-suhaidah"
+                "p-norliana", "p-nor-suhaidah"
             ]
         },
         {
@@ -254,7 +505,7 @@
                 "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
                 "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
                 "p-rosmawati", "p-mohd-zahari",
-                "p-norliana", "p-nur-suhaidah"
+                "p-norliana", "p-nor-suhaidah"
             ]
         },
         {
@@ -268,12 +519,12 @@
                 "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
                 "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
                 "p-rosmawati", "p-mohd-zahari", "p-normalina",
-                "p-nur-suhaidah"
+                "p-nor-suhaidah"
             ]
         },
         {
-            id: "p-nur-suhaidah",
-            name: "Nur Suhaidah",
+            id: "p-nor-suhaidah",
+            name: "Nor Suhaidah",
             birthday: "",
             image: "images/default.png",
             parentIds: ["gp-rodiah", "gp-awang-matsidek"],
