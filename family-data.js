@@ -32,7 +32,8 @@
         },
         {
             id: "ggp-mohd-yunus-wife",
-            name: "Isteri Mohd Yunus",
+            name: "Janon",
+            fullName: "Janon bt mat seh",
             birthday: "",
             image: "images/default.png",
             partnerId: "ggp-mohd-yunus",
@@ -57,7 +58,8 @@
         },
         {
             id: "ggp-awang-mother",
-            name: "Ibu Awang",
+            name: "Sicik",
+            fullName: "Sicik bt lamin",
             birthday: "",
             image: "images/default.png",
             partnerId: "ggp-matsidek",
