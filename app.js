@@ -309,7 +309,13 @@
                 const row = document.createElement("div");
                 row.classList.add("family-level");
 
+                const renderedIds = new Set();
+
                 viewData.parents.forEach((parent) => {
+                    // Skip if already rendered (avoids duplicates)
+                    if (renderedIds.has(parent.id)) return;
+                    renderedIds.add(parent.id);
+
                     // Parent bubble
                     const bubble = this._createBubble(parent, "parent");
                     bubble.addEventListener("click", () => {
@@ -321,7 +327,8 @@
                     row.appendChild(bubble);
 
                     // Partner bubble (inline next to parent)
-                    if (parent.partner) {
+                    if (parent.partner && !renderedIds.has(parent.partner.id)) {
+                        renderedIds.add(parent.partner.id);
                         const partnerBubble = this._createBubble(
                             parent.partner,
                             "parent"

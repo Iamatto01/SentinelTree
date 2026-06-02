@@ -719,7 +719,6 @@ body.night .bubble-hint {
 
 /* Deceased family member styling */
 .bubble--deceased {
-    --bubble-accent: rgba(100, 116, 139, 0.18);
     opacity: 0.78;
 }
 

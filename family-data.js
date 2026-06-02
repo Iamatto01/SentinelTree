@@ -44,7 +44,7 @@
         {
             id: "gp-rodiah",
             name: "Hjh Rodiah",
-            fullName: "Hjh Rodiah @ Adi Mohd Yunus",
+            fullName: "Hjh Rodiah @ Adi Binti Mohd Yunus",
             title: "Dato Batul",
             birthday: "",
             image: "images/Rodiah.png",
@@ -58,8 +58,8 @@
         },
         {
             id: "gp-awang-matsidek",
-            name: "Hj Awang Mat Sidek",
-            fullName: "Hj Awang Mat Sidek @ Daud",
+            name: "Hj Awang Bin Mat Sidek",
+            fullName: "Hj Awang Bin Mat Sidek @ Daud",
             title: "Dato Tiri",
             birthday: "",
             image: "images/Awang.png",
@@ -75,7 +75,7 @@
         // ── Parents ──────────────────────────────────────────
         {
             id: "p-mohd-jamal",
-            name: "Mohd Jamal Awang",
+            name: "Mohd Jamal",
             birthday: "Aug 10, 1967",
             image: "images/Abah.png",
             partnerId: "p-maimunah",
@@ -126,7 +126,7 @@
         // ── Paternal Aunts / Uncles (siblings of Mohd Jamal) ────
         {
             id: "p-saadiah",
-            name: "Saadiah Awang",
+            name: "Saadiah",
             birthday: "",
             image: "images/default.png",
             parentIds: ["gp-rodiah", "gp-awang-matsidek"],
@@ -139,7 +139,7 @@
         },
         {
             id: "p-fauziah",
-            name: "Fauziah Awang",
+            name: "Fauziah",
             deceased: true,
             birthday: "",
             image: "images/default.png",
@@ -153,7 +153,7 @@
         },
         {
             id: "p-salina",
-            name: "Salina Awang",
+            name: "Salina",
             birthday: "",
             image: "images/default.png",
             parentIds: ["gp-rodiah", "gp-awang-matsidek"],
@@ -166,7 +166,7 @@
         },
         {
             id: "p-md-yacob",
-            name: "Md Yacob Awang",
+            name: "Md Yacob",
             birthday: "",
             image: "images/default.png",
             parentIds: ["gp-rodiah", "gp-awang-matsidek"],
@@ -179,7 +179,7 @@
         },
         {
             id: "p-salmah",
-            name: "Salmah Awang",
+            name: "Salmah",
             birthday: "",
             image: "images/default.png",
             parentIds: ["gp-rodiah", "gp-awang-matsidek"],
@@ -192,7 +192,7 @@
         },
         {
             id: "p-mohd-hairi",
-            name: "Mohd Hairi Awang",
+            name: "Mohd Hairi",
             deceased: true,
             birthday: "",
             image: "images/default.png",
@@ -206,7 +206,7 @@
         },
         {
             id: "p-rosmawati",
-            name: "Rosmawati Awang",
+            name: "Rosmawati",
             birthday: "",
             image: "images/default.png",
             parentIds: ["gp-rodiah", "gp-awang-matsidek"],
@@ -219,7 +219,7 @@
         },
         {
             id: "p-mohd-ariffin",
-            name: "Mohd Ariffin Awang",
+            name: "Mohd Ariffin",
             deceased: true,
             birthday: "",
             image: "images/default.png",
@@ -233,7 +233,7 @@
         },
         {
             id: "p-mohd-zahari",
-            name: "Mohd Zahari Awang",
+            name: "Mohd Zahari",
             birthday: "",
             image: "images/default.png",
             parentIds: ["gp-rodiah", "gp-awang-matsidek"],
@@ -246,7 +246,7 @@
         },
         {
             id: "p-normalina",
-            name: "Normalina Awang",
+            name: "Normalina",
             birthday: "",
             image: "images/default.png",
             parentIds: ["gp-rodiah", "gp-awang-matsidek"],
@@ -259,7 +259,7 @@
         },
         {
             id: "p-norliana",
-            name: "Norliana Awang",
+            name: "Norliana",
             deceased: true,
             birthday: "",
             image: "images/default.png",
@@ -273,7 +273,7 @@
         },
         {
             id: "p-nur-suhaidah",
-            name: "Nur Suhaidah Awang",
+            name: "Nur Suhaidah",
             birthday: "",
             image: "images/default.png",
             parentIds: ["gp-rodiah", "gp-awang-matsidek"],
