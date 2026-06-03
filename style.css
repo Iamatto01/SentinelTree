@@ -89,15 +89,15 @@ body, .dayNight label, .dayNight label::before {
 
 
 #family-tree-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2em;
-    padding: 1em;
+    display: block;
+    overflow-x: auto;
+    overflow-y: visible;
+    padding: 1.5rem 1rem;
     background: transparent;
     width: 100%;
-    margin: 0 auto;
     border-radius: 10px;
+    /* Smooth horizontal scroll on mobile */
+    -webkit-overflow-scrolling: touch;
 }
 
 
@@ -1850,7 +1850,10 @@ body.night .tree-connector::after {
 [data-chart] {
     display: flex;
     align-items: center;
-    width: 100%;
+    /* Use max-content so the chart takes its natural width and centers */
+    width: max-content;
+    min-width: 100%;
+    margin: 0 auto;
 }
 
 /* All knot elements are flex containers */
@@ -1997,9 +2000,9 @@ body.night .oc-trunk {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.3rem;
-    padding: 0.8rem 0.7rem 0.65rem;
-    border-radius: 20px;
+    gap: 0.4rem;
+    padding: 1rem 0.9rem 0.85rem;
+    border-radius: 22px;
     border: 1px solid rgba(15, 23, 42, 0.12);
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(249, 245, 240, 0.94));
     box-shadow:
@@ -2007,8 +2010,8 @@ body.night .oc-trunk {
         0 1px 4px rgba(15, 23, 42, 0.05);
     cursor: pointer;
     text-align: center;
-    min-width: 118px;
-    max-width: 148px;
+    min-width: 140px;
+    max-width: 170px;
     transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
     animation: oc-node-in 0.35s ease-out backwards;
 }
@@ -2039,10 +2042,15 @@ body.night [data-symbol].oc-node:hover {
     box-shadow: 0 14px 28px rgba(0, 0, 0, 0.3);
 }
 
-/* Deceased node */
+/* Deceased node — black & white */
 [data-symbol].oc-node--deceased {
-    opacity: 0.68;
     border-style: dashed;
+    opacity: 0.8;
+}
+
+[data-symbol].oc-node--deceased .oc-node-photo {
+    filter: grayscale(100%) contrast(0.9) brightness(0.9);
+    opacity: 0.7;
 }
 
 /* Parent node — warm orange accent */
@@ -2066,14 +2074,15 @@ body.night [data-symbol].oc-node--parent:hover {
 
 /* Photo */
 .oc-node-photo {
-    width: 62px;
-    height: 62px;
+    width: 76px;
+    height: 76px;
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid rgba(255, 255, 255, 0.92);
     box-shadow: 0 4px 10px rgba(15, 23, 42, 0.13);
     display: block;
     flex-shrink: 0;
+    transition: filter 0.2s ease;
 }
 
 body.night .oc-node-photo {
@@ -2082,17 +2091,17 @@ body.night .oc-node-photo {
 
 /* Name */
 .oc-node-name {
-    font-size: 0.8rem;
+    font-size: 0.86rem;
     font-weight: 700;
-    line-height: 1.18;
-    max-width: 11ch;
+    line-height: 1.2;
+    max-width: 13ch;
     word-break: break-word;
-    margin-top: 0.1rem;
+    margin-top: 0.15rem;
 }
 
 /* Birthday */
 .oc-node-meta {
-    font-size: 0.68rem;
+    font-size: 0.72rem;
     color: #5f6874;
     line-height: 1.2;
 }
@@ -2131,24 +2140,24 @@ body.night .oc-node-meta {
 /* Responsive */
 @media (max-width: 640px) {
     [data-symbol].oc-node {
-        min-width: 96px;
-        max-width: 118px;
-        padding: 0.6rem 0.5rem;
-        border-radius: 16px;
+        min-width: 110px;
+        max-width: 135px;
+        padding: 0.75rem 0.6rem;
+        border-radius: 18px;
     }
 
     .oc-node-photo {
-        width: 50px;
-        height: 50px;
+        width: 60px;
+        height: 60px;
     }
 
     .oc-node-name {
-        font-size: 0.72rem;
+        font-size: 0.78rem;
     }
 
     .oc-node-details {
-        font-size: 0.64rem;
-        min-height: 24px;
+        font-size: 0.66rem;
+        min-height: 26px;
     }
 
     .oc-marriage-line {
