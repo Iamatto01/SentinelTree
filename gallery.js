@@ -13,7 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const U = window.SentinelUtils;
     const config = window.FAMILY_TREE_CONFIG || {};
-    const githubImageUploadUrl = String(config.githubImageUploadUrl || "").trim();
+    // Prefer Google Drive upload via Apps Script if configured, fallback to github image url or base64
+    const uploadEndpoint = String(config.googleWebAppUrl || config.githubImageUploadUrl || "").trim();
 
     // ── DOM refs ────────────────────────────────────────────
     const galleryContainer = document.getElementById("gallery-container");
@@ -388,7 +389,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     // Upload via shared utility
                     const imageUrl = await U.uploadMedia(
                         file,
-                        githubImageUploadUrl
+                        uploadEndpoint
                     );
 
                     await addFn({

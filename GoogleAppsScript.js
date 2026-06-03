@@ -25,6 +25,8 @@ function doPost(e) {
       return handleSavePerson(payload.data);
     } else if (action === "syncDataset") {
       return handleSyncDataset(payload.data);
+    } else if (action === "uploadGalleryImage") {
+      return handleUploadGalleryImage(payload.data);
     }
 
     return buildResponse({ status: "error", message: "Unknown action." });
@@ -85,6 +87,27 @@ function handleSavePerson(personData) {
   ]);
 
   return buildResponse({ status: "success", imageUrl: imageUrl });
+}
+
+function handleUploadGalleryImage(data) {
+  if (!data.base64Image) {
+    return buildResponse({ status: "error", message: "No image provided" });
+  }
+  
+  try {
+    const folder = DriveApp.getFolderById(DRIVE_FOLDER_ID);
+    const base64Data = data.base64Image.split(",")[1] || data.base64Image;
+    const decodedData = Utilities.base64Decode(base64Data);
+    const blob = Utilities.newBlob(decodedData, getMimeType(data.base64Image), "gallery_upload_" + new Date().getTime());
+    
+    const file = folder.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    
+    const imageUrl = file.getDownloadUrl() || file.getUrl();
+    return buildResponse({ status: "success", imageUrl: imageUrl });
+  } catch (e) {
+    return buildResponse({ status: "error", message: e.toString() });
+  }
 }
 
 function handleSyncDataset(dataset) {

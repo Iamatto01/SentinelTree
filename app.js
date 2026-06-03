@@ -107,30 +107,14 @@
             if (age !== null) parts.push(`${age} years`);
             this.els.subtitle.textContent = parts.join(" · ");
 
-            // Tags
-            this.els.tags.innerHTML = "";
-            const roles = person.roles || (role ? [role] : []);
-            U.safeArray(roles).forEach((r) => {
-                const span = document.createElement("span");
-                span.className = "tag";
-                span.textContent = r;
-                this.els.tags.appendChild(span);
-            });
-
             // Title (e.g. Dato Batul, Dato Tiri)
             if (person.title) {
-                const titleTag = document.createElement("span");
-                titleTag.className = "tag tag--title";
-                titleTag.textContent = person.title;
-                this.els.tags.prepend(titleTag);
+                this.els.subtitle.textContent += ` · ${person.title}`;
             }
 
             // Deceased indicator
             if (person.deceased) {
-                const deceasedTag = document.createElement("span");
-                deceasedTag.className = "tag tag--deceased";
-                deceasedTag.textContent = "Al-Fatihah";
-                this.els.tags.appendChild(deceasedTag);
+                this.els.subtitle.textContent += ` · Al-Fatihah`;
             }
 
             // Essential info
@@ -174,14 +158,11 @@
 
         _onEdit() {
             if (!this.current) return;
-            if (
-                this.current.id &&
-                window.FamilyTreeStore &&
-                window.FamilyTreeStore.isConfigured()
-            ) {
+            // Allow editing of all records (built-in or Supabase) by passing the ID
+            if (this.current.id) {
                 window.location.href = `AddPeople.html?edit=${this.current.id}`;
             } else {
-                alert("Cannot edit this built-in or static record.");
+                alert("Cannot edit this record (missing ID).");
             }
         }
 
@@ -327,9 +308,16 @@
 
                 const renderedIds = new Set();
 
-                parents.forEach((parent) => {
+                parents.forEach((parent, i) => {
                     if (renderedIds.has(parent.id)) return;
                     renderedIds.add(parent.id);
+
+                    if (i > 0) {
+                        const heart = document.createElement("div");
+                        heart.className = "oc-heart-connector";
+                        heart.textContent = "❤️";
+                        parentsRow.appendChild(heart);
+                    }
 
                     const node = this._createNode(parent, "parent");
                     node.addEventListener("click", () => {
@@ -454,23 +442,25 @@
                 }
             });
             this.container.appendChild(wrapper);
-
-            // Auto-scroll to center so the parents are immediately visible
-            setTimeout(() => {
-                const scrollLeft = (this.container.scrollWidth - this.container.clientWidth) / 2;
-                if (scrollLeft > 0) this.container.scrollLeft = scrollLeft;
-            }, 10);
         }
 
         _render(viewData, showBack) {
             this.container.innerHTML = "";
 
             if (showBack) {
-                const btn = document.createElement("button");
-                btn.textContent = "Go Back";
-                btn.classList.add("go-back");
-                btn.addEventListener("click", () => this.goBack());
-                this.container.appendChild(btn);
+                const backRow = document.createElement("div");
+                backRow.className = "oc-back-row";
+
+                const backBtn = document.createElement("button");
+                backBtn.className = "primary-button";
+                backBtn.style.padding = "0.5rem 1rem";
+                backBtn.style.minHeight = "auto";
+                backBtn.style.marginBottom = "1rem";
+                backBtn.textContent = "Go Back";
+                backBtn.addEventListener("click", () => this.goBack());
+
+                backRow.appendChild(backBtn);
+                this.container.appendChild(backRow);
             }
 
             const chart = document.createElement("div");
@@ -479,12 +469,6 @@
 
             this._appendOCView(chart, viewData);
             this.container.appendChild(chart);
-
-            // Auto-scroll to center so the parents are immediately visible
-            setTimeout(() => {
-                const scrollLeft = (this.container.scrollWidth - this.container.clientWidth) / 2;
-                if (scrollLeft > 0) this.container.scrollLeft = scrollLeft;
-            }, 10);
         }
 
         /**

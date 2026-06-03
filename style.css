@@ -1989,9 +1989,7 @@ body.night .sub-tree-divider {
 [data-chart] {
     display: flex;
     align-items: center;
-    /* Use max-content so the chart takes its natural width and centers */
-    width: max-content;
-    min-width: 100%;
+    width: 100%;
     margin: 0 auto;
 }
 
@@ -2002,6 +2000,12 @@ body.night .sub-tree-divider {
     justify-content: center;
     position: relative;
     z-index: 1;
+}
+
+[data-knot="branch"] {
+    flex-wrap: wrap;
+    row-gap: 2rem;
+    justify-content: center;
 }
 
 [data-knot*="node"] { align-items: stretch    }
@@ -2096,21 +2100,29 @@ body.night [data-knot*="step"]:after {
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 0;
+    gap: 1.5rem;
 }
 
-/* Marriage line connecting two parent nodes */
-.oc-marriage-line {
-    width: 2.5rem;
-    height: 2px;
-    background: linear-gradient(90deg, rgba(14, 116, 144, 0.5), rgba(194, 65, 12, 0.5));
+/* Heart connector between parent nodes */
+.oc-heart-connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    color: #e11d48;
     flex-shrink: 0;
     align-self: center;
-    margin-bottom: 1.5rem; /* aligns with node photo center */
+    margin-bottom: 1.2rem;
+    animation: oc-heart-beat 1.8s ease-in-out infinite;
+    filter: drop-shadow(0 2px 4px rgba(225, 29, 72, 0.3));
 }
 
-body.night .oc-marriage-line {
-    background: linear-gradient(90deg, rgba(94, 234, 212, 0.4), rgba(245, 158, 11, 0.4));
+@keyframes oc-heart-beat {
+    0%, 100% { transform: scale(1); }
+    14% { transform: scale(1.15); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.1); }
+    56% { transform: scale(1); }
 }
 
 /* Vertical trunk from parents row down to children crossbar */

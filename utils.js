@@ -122,11 +122,11 @@
     }
 
     /**
-     * Upload a File to the configured GitHub image-upload endpoint.
+     * Upload a File to the configured endpoint (Google Apps Script or GitHub).
      * Falls back to returning a data-URL if no endpoint is configured.
      *
      * @param {File} file
-     * @param {string} uploadUrl  – the GitHub upload endpoint (may be empty)
+     * @param {string} uploadUrl
      * @returns {Promise<string>} the resulting image URL or data-URL
      */
     async function uploadMedia(file, uploadUrl) {
@@ -134,6 +134,24 @@
             return fileToDataUrl(file);
         }
 
+        // Handle Google Apps Script upload (Google Drive)
+        if (uploadUrl.includes("script.google.com")) {
+            const dataUrl = await fileToDataUrl(file);
+            const res = await fetch(uploadUrl, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "uploadGalleryImage",
+                    data: { base64Image: dataUrl }
+                })
+            });
+            const result = await res.json().catch(() => ({}));
+            if (result.status === "success" && result.imageUrl) {
+                return result.imageUrl;
+            }
+            return dataUrl; // fallback if failed
+        }
+
+        // Original FormData endpoint logic (GitHub / custom)
         const formData = new FormData();
         formData.append("file", file, file.name || "family-media");
 
