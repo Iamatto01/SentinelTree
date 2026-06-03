@@ -301,6 +301,125 @@
         // ── Internal ────────────────────────────────────────
 
         /**
+         * Build one OC-chart view and append it to a container element.
+         * Shared by _render() and _renderMultiTree().
+         *
+         * Layout:
+         *   [parents row] ─── marriage line ───
+         *        │  (oc-trunk)
+         *   ─────┼──────────────────── (branch crossbar via knot system)
+         *        │         │         │
+         *   [child.lft] [child.ctr] [child.rgt]
+         *
+         * @param {HTMLElement} container
+         * @param {{ parents: object[], children: object[] }} viewData
+         */
+        _appendOCView(container, viewData) {
+            const { parents, children } = viewData;
+
+            // ── Parents section ──────────────────────────────
+            if (parents && parents.length > 0) {
+                const parentsSection = document.createElement("div");
+                parentsSection.classList.add("oc-parents-section");
+
+                const parentsRow = document.createElement("div");
+                parentsRow.classList.add("oc-parents-row");
+
+                const renderedIds = new Set();
+
+                parents.forEach((parent) => {
+                    if (renderedIds.has(parent.id)) return;
+                    renderedIds.add(parent.id);
+
+                    const node = this._createNode(parent, "parent");
+                    node.addEventListener("click", () => {
+                        const p = this.registry.getById(parent.id);
+                        if (p && p.parentIds && p.parentIds.length > 0) {
+                            this.navigateToAncestors(parent.id);
+                        }
+                    });
+                    parentsRow.appendChild(node);
+
+                    // Marriage connector + partner
+                    if (parent.partner && !renderedIds.has(parent.partner.id)) {
+                        renderedIds.add(parent.partner.id);
+
+                        const marriageLine = document.createElement("div");
+                        marriageLine.classList.add("oc-marriage-line");
+                        parentsRow.appendChild(marriageLine);
+
+                        const partnerNode = this._createNode(parent.partner, "parent");
+                        partnerNode.addEventListener("click", () => {
+                            const pt = this.registry.getById(parent.partner.id);
+                            if (pt && pt.parentIds && pt.parentIds.length > 0) {
+                                this.navigateToAncestors(parent.partner.id);
+                            }
+                        });
+                        parentsRow.appendChild(partnerNode);
+                    }
+                });
+
+                parentsSection.appendChild(parentsRow);
+
+                // Trunk: vertical connector from parents down to children crossbar
+                if (children && children.length > 0) {
+                    const trunk = document.createElement("div");
+                    trunk.classList.add("oc-trunk");
+                    parentsSection.appendChild(trunk);
+                }
+
+                container.appendChild(parentsSection);
+            }
+
+            // ── Children branch (knot system) ────────────────
+            if (children && children.length > 0) {
+                if (children.length === 1) {
+                    // Single child — no horizontal crossbar needed
+                    const solo = document.createElement("div");
+                    solo.classList.add("oc-solo-child");
+                    const childNode = this._createNode(children[0], "child");
+                    childNode.addEventListener("click", () => {
+                        this.navigateIntoBranch(children[0].id);
+                    });
+                    solo.appendChild(childNode);
+                    container.appendChild(solo);
+                } else {
+                    // Multiple children — use knot system for crossbar + drops
+                    const branch = document.createElement("div");
+                    branch.setAttribute("data-knot", "branch");
+
+                    children.forEach((child, index) => {
+                        let knotVal;
+                        if (index === 0) {
+                            knotVal = "node.lft";
+                        } else if (index === children.length - 1) {
+                            knotVal = "node.rgt";
+                        } else {
+                            knotVal = "node.ctr";
+                        }
+
+                        const knotNode = document.createElement("div");
+                        knotNode.setAttribute("data-knot", knotVal);
+
+                        const step = document.createElement("div");
+                        step.setAttribute("data-knot", "step");
+
+                        const childNode = this._createNode(child, "child");
+                        childNode.addEventListener("click", () => {
+                            this.navigateIntoBranch(child.id);
+                        });
+
+                        step.appendChild(childNode);
+                        knotNode.appendChild(step);
+                        branch.appendChild(knotNode);
+                    });
+
+                    container.appendChild(branch);
+                }
+            }
+        }
+
+        /**
          * Render multiple sub-trees on one page (for half-siblings).
          *
          * @param {{ parents: object[], children: object[], label: string }[]} views
@@ -308,23 +427,19 @@
         _renderMultiTree(views) {
             this.container.innerHTML = "";
 
-            // Go Back button
             const backBtn = document.createElement("button");
             backBtn.textContent = "Go Back";
             backBtn.classList.add("go-back");
             backBtn.addEventListener("click", () => this.goBack());
             this.container.appendChild(backBtn);
 
-            // Multi-tree wrapper
             const wrapper = document.createElement("div");
             wrapper.classList.add("multi-tree-wrapper");
 
             views.forEach((view, index) => {
-                // Sub-tree container
                 const subTree = document.createElement("div");
                 subTree.classList.add("sub-tree");
 
-                // Label
                 if (view.label) {
                     const label = document.createElement("div");
                     label.classList.add("sub-tree-label");
@@ -341,68 +456,15 @@
                     subTree.appendChild(label);
                 }
 
-                // Parents row
-                if (view.parents && view.parents.length > 0) {
-                    const row = document.createElement("div");
-                    row.classList.add("family-level");
-
-                    const renderedIds = new Set();
-
-                    view.parents.forEach((parent) => {
-                        if (renderedIds.has(parent.id)) return;
-                        renderedIds.add(parent.id);
-
-                        const bubble = this._createBubble(parent, "parent");
-                        bubble.addEventListener("click", () => {
-                            const p = this.registry.getById(parent.id);
-                            if (p && p.parentIds && p.parentIds.length > 0) {
-                                this.navigateToAncestors(parent.id);
-                            }
-                        });
-                        row.appendChild(bubble);
-
-                        if (parent.partner && !renderedIds.has(parent.partner.id)) {
-                            renderedIds.add(parent.partner.id);
-                            const partnerBubble = this._createBubble(parent.partner, "parent");
-                            partnerBubble.addEventListener("click", () => {
-                                const pt = this.registry.getById(parent.partner.id);
-                                if (pt && pt.parentIds && pt.parentIds.length > 0) {
-                                    this.navigateToAncestors(parent.partner.id);
-                                }
-                            });
-                            row.appendChild(partnerBubble);
-                        }
-                    });
-
-                    subTree.appendChild(row);
-
-                    // Connector line
-                    if (view.children && view.children.length > 0) {
-                        const connector = document.createElement("div");
-                        connector.classList.add("tree-connector");
-                        subTree.appendChild(connector);
-                    }
-                }
-
-                // Children row
-                if (view.children && view.children.length > 0) {
-                    const row = document.createElement("div");
-                    row.classList.add("family-level");
-
-                    view.children.forEach((child) => {
-                        const bubble = this._createBubble(child, "child");
-                        bubble.addEventListener("click", () => {
-                            this.navigateIntoBranch(child.id);
-                        });
-                        row.appendChild(bubble);
-                    });
-
-                    subTree.appendChild(row);
-                }
+                // Each sub-tree uses the same OC chart structure
+                const chart = document.createElement("div");
+                chart.setAttribute("data-chart", "OC");
+                chart.setAttribute("C", "");
+                this._appendOCView(chart, view);
+                subTree.appendChild(chart);
 
                 wrapper.appendChild(subTree);
 
-                // Divider between sub-trees (not after the last one)
                 if (index < views.length - 1) {
                     const divider = document.createElement("div");
                     divider.classList.add("sub-tree-divider");
@@ -416,7 +478,6 @@
         _render(viewData, showBack) {
             this.container.innerHTML = "";
 
-            // Go Back button
             if (showBack) {
                 const btn = document.createElement("button");
                 btn.textContent = "Go Back";
@@ -425,111 +486,50 @@
                 this.container.appendChild(btn);
             }
 
-            // Parents row
-            if (viewData.parents && viewData.parents.length > 0) {
-                const row = document.createElement("div");
-                row.classList.add("family-level");
+            const chart = document.createElement("div");
+            chart.setAttribute("data-chart", "OC");
+            chart.setAttribute("C", "");
 
-                const renderedIds = new Set();
-
-                viewData.parents.forEach((parent) => {
-                    // Skip if already rendered (avoids duplicates)
-                    if (renderedIds.has(parent.id)) return;
-                    renderedIds.add(parent.id);
-
-                    // Parent bubble
-                    const bubble = this._createBubble(parent, "parent");
-                    bubble.addEventListener("click", () => {
-                        const p = this.registry.getById(parent.id);
-                        if (p && p.parentIds && p.parentIds.length > 0) {
-                            this.navigateToAncestors(parent.id);
-                        }
-                    });
-                    row.appendChild(bubble);
-
-                    // Partner bubble (inline next to parent)
-                    if (parent.partner && !renderedIds.has(parent.partner.id)) {
-                        renderedIds.add(parent.partner.id);
-                        const partnerBubble = this._createBubble(
-                            parent.partner,
-                            "parent"
-                        );
-                        partnerBubble.addEventListener("click", () => {
-                            const pt = this.registry.getById(parent.partner.id);
-                            if (pt && pt.parentIds && pt.parentIds.length > 0) {
-                                this.navigateToAncestors(parent.partner.id);
-                            }
-                        });
-                        row.appendChild(partnerBubble);
-                    }
-                });
-
-                this.container.appendChild(row);
-
-                // Connector line
-                if (viewData.children && viewData.children.length > 0) {
-                    const connector = document.createElement("div");
-                    connector.classList.add("tree-connector");
-                    this.container.appendChild(connector);
-                }
-            }
-
-            // Children row
-            if (viewData.children && viewData.children.length > 0) {
-                const row = document.createElement("div");
-                row.classList.add("family-level");
-
-                viewData.children.forEach((child) => {
-                    const bubble = this._createBubble(child, "child");
-                    bubble.addEventListener("click", () => {
-                        this.navigateIntoBranch(child.id);
-                    });
-                    row.appendChild(bubble);
-                });
-
-                this.container.appendChild(row);
-            }
+            this._appendOCView(chart, viewData);
+            this.container.appendChild(chart);
         }
 
         /**
-         * Create a single person bubble element.
+         * Create an org-chart node card for a person.
          *
          * @param {object} person
          * @param {"parent"|"child"} role
          * @returns {HTMLElement}
          */
-        _createBubble(person, role) {
-            const bubble = document.createElement("div");
-            bubble.classList.add("bubble", `bubble--${role}`);
-            if (person.deceased) {
-                bubble.classList.add("bubble--deceased");
-            }
-            bubble.setAttribute("tabindex", "0");
-            bubble.setAttribute("role", "button");
-            bubble.title = "Tap to explore this branch";
+        _createNode(person, role) {
+            const node = document.createElement("div");
+            node.setAttribute("data-symbol", "");
+            node.classList.add("oc-node", `oc-node--${role}`);
+            if (person.deceased) node.classList.add("oc-node--deceased");
+            node.setAttribute("tabindex", "0");
+            node.setAttribute("role", "button");
 
-            bubble.innerHTML = `
-                <img src="${U.escapeHtml(person.image || person.imageUrl || U.FALLBACK_AVATAR)}" alt="${U.escapeHtml(person.name)}">
-                <span><strong>${U.escapeHtml(person.name)}</strong></span>
-                <span class="bubble-meta">${U.escapeHtml(person.birthday || "")}</span>
-                <span class="bubble-hint">Tap to explore</span>
+            node.innerHTML = `
+                <img src="${U.escapeHtml(person.image || person.imageUrl || U.FALLBACK_AVATAR)}"
+                     alt="${U.escapeHtml(person.name)}"
+                     class="oc-node-photo">
+                <div class="oc-node-name">${U.escapeHtml(person.name)}</div>
+                <div class="oc-node-meta">${U.escapeHtml(person.birthday || "")}</div>
             `;
 
-            // Details button
             const detailsBtn = document.createElement("button");
             detailsBtn.type = "button";
-            detailsBtn.className = "bubble-details";
+            detailsBtn.className = "oc-node-details";
             detailsBtn.textContent = "Details";
             detailsBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
                 const derivedRole = this.registry.deriveRole(person.id);
-                // Look up from registry for full data, fall back to what we have
                 const full = this.registry.getById(person.id) || person;
                 this.modal.open(full, derivedRole);
             });
-            bubble.appendChild(detailsBtn);
+            node.appendChild(detailsBtn);
 
-            return bubble;
+            return node;
         }
     }
 

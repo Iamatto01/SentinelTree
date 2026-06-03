@@ -1837,3 +1837,321 @@ body.night .tree-connector::after {
     align-items: center;
     justify-content: center;
 }
+
+/* ═══════════════════════════════════════════════════════
+   ORG CHART — KNOT SYSTEM
+   Based on the knot-line pattern; adapted for family tree.
+   ═══════════════════════════════════════════════════════ */
+
+/* Flex direction shortcut (scoped to chart context) */
+[data-chart][C] { flex-direction: column }
+
+/* Chart container */
+[data-chart] {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+/* All knot elements are flex containers */
+[data-knot] {
+    display: flex;
+    flex-grow: 1;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+}
+
+[data-knot*="node"] { align-items: stretch    }
+[data-knot*="step"] { align-items: flex-start }
+
+/* Pseudo-elements draw the lines */
+[data-knot]:before,
+[data-knot]:after {
+    position: absolute;
+    z-index: -1;
+    content: '';
+}
+
+/* Horizontal lines (node knots) */
+[data-knot*="node"]:before { top:     1px }
+[data-knot*="node"]:after  { bottom: -1px }
+
+[data-knot*="node"]:before,
+[data-knot*="node"]:after {
+    height: 0;
+    width: 50%;
+}
+
+/* Vertical lines (step knots) */
+[data-knot*="step"]:before,
+[data-knot*="step"]:after {
+    width: 0;
+    left: 50%;
+    right: 50%;
+}
+
+/* lft — line goes right only */
+[data-knot*="lft"]:before,
+[data-knot*="lft"]:after { left: 50% }
+
+/* rgt — line goes left only */
+[data-knot*="rgt"]:before,
+[data-knot*="rgt"]:after { right: 50% }
+
+/* ctr — line spans full width */
+[data-knot*="ctr"]:before,
+[data-knot*="ctr"]:after {
+    width: 100%;
+    left: 0;
+}
+
+/* Vertical step padding and line sizing */
+[data-knot*="step"] {
+    padding: 14px 10px;
+}
+[data-knot*="step"]:before {
+    height: 14px;               /* = top padding */
+}
+[data-knot*="step"]:after {
+    height: calc(100% - 14px); /* rest of height */
+}
+
+/* Line color — teal to match design system */
+[data-knot*="node"]:before,
+[data-knot*="step"]:before,
+[data-knot*="step"]:after {
+    outline: 2px solid rgba(14, 116, 144, 0.45);
+}
+
+body.night [data-knot*="node"]:before,
+body.night [data-knot*="step"]:before,
+body.night [data-knot*="step"]:after {
+    outline: 2px solid rgba(94, 234, 212, 0.38);
+}
+
+/* Suppress start/stop lines */
+[data-knot="step"]:after,
+[data-knot*="start"]:before,
+[data-knot*="stop"]:after {
+    outline: none;
+}
+
+/* ═══════════════════════════════════════════════════════
+   OC — PARENTS SECTION
+   ═══════════════════════════════════════════════════════ */
+
+.oc-parents-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.oc-parents-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0;
+}
+
+/* Marriage line connecting two parent nodes */
+.oc-marriage-line {
+    width: 2.5rem;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(14, 116, 144, 0.5), rgba(194, 65, 12, 0.5));
+    flex-shrink: 0;
+    align-self: center;
+    margin-bottom: 1.5rem; /* aligns with node photo center */
+}
+
+body.night .oc-marriage-line {
+    background: linear-gradient(90deg, rgba(94, 234, 212, 0.4), rgba(245, 158, 11, 0.4));
+}
+
+/* Vertical trunk from parents row down to children crossbar */
+.oc-trunk {
+    width: 2px;
+    height: 2rem;
+    background: linear-gradient(180deg, rgba(14, 116, 144, 0.4), rgba(14, 116, 144, 0.65));
+    flex-shrink: 0;
+}
+
+body.night .oc-trunk {
+    background: linear-gradient(180deg, rgba(94, 234, 212, 0.3), rgba(94, 234, 212, 0.55));
+}
+
+/* Single child — just center, no crossbar */
+.oc-solo-child {
+    display: flex;
+    justify-content: center;
+}
+
+/* ═══════════════════════════════════════════════════════
+   OC — NODE CARDS
+   ═══════════════════════════════════════════════════════ */
+
+[data-symbol].oc-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.8rem 0.7rem 0.65rem;
+    border-radius: 20px;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(249, 245, 240, 0.94));
+    box-shadow:
+        0 6px 16px rgba(15, 23, 42, 0.09),
+        0 1px 4px rgba(15, 23, 42, 0.05);
+    cursor: pointer;
+    text-align: center;
+    min-width: 118px;
+    max-width: 148px;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    animation: oc-node-in 0.35s ease-out backwards;
+}
+
+@keyframes oc-node-in {
+    from { opacity: 0; transform: translateY(10px) }
+    to   { opacity: 1; transform: translateY(0)    }
+}
+
+[data-symbol].oc-node:hover,
+[data-symbol].oc-node:focus-visible {
+    transform: translateY(-5px);
+    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.15);
+    border-color: #0e7490;
+    outline: none;
+}
+
+body.night [data-symbol].oc-node {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.97), rgba(17, 24, 39, 0.9));
+    border-color: rgba(148, 163, 184, 0.18);
+    box-shadow:
+        0 6px 16px rgba(0, 0, 0, 0.22),
+        0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+body.night [data-symbol].oc-node:hover {
+    border-color: #5eead4;
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.3);
+}
+
+/* Deceased node */
+[data-symbol].oc-node--deceased {
+    opacity: 0.68;
+    border-style: dashed;
+}
+
+/* Parent node — warm orange accent */
+[data-symbol].oc-node--parent {
+    border-color: rgba(194, 65, 12, 0.22);
+}
+[data-symbol].oc-node--parent:hover {
+    border-color: #c2410c;
+}
+body.night [data-symbol].oc-node--parent {
+    border-color: rgba(245, 158, 11, 0.22);
+}
+body.night [data-symbol].oc-node--parent:hover {
+    border-color: #fbbf24;
+}
+
+/* Child node — teal accent */
+[data-symbol].oc-node--child {
+    border-color: rgba(14, 116, 144, 0.18);
+}
+
+/* Photo */
+.oc-node-photo {
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(255, 255, 255, 0.92);
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.13);
+    display: block;
+    flex-shrink: 0;
+}
+
+body.night .oc-node-photo {
+    border-color: rgba(17, 24, 39, 0.95);
+}
+
+/* Name */
+.oc-node-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1.18;
+    max-width: 11ch;
+    word-break: break-word;
+    margin-top: 0.1rem;
+}
+
+/* Birthday */
+.oc-node-meta {
+    font-size: 0.68rem;
+    color: #5f6874;
+    line-height: 1.2;
+}
+
+body.night .oc-node-meta {
+    color: #c3cada;
+}
+
+/* Details button */
+.oc-node-details {
+    width: 100%;
+    min-height: 28px;
+    margin-top: 0.25rem;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #0e7490 0%, #c2410c 100%);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: filter 0.18s ease, transform 0.18s ease;
+    font-family: inherit;
+}
+
+.oc-node-details:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+.oc-node-details:focus-visible {
+    outline: 3px solid rgba(14, 116, 144, 0.3);
+    outline-offset: 2px;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    [data-symbol].oc-node {
+        min-width: 96px;
+        max-width: 118px;
+        padding: 0.6rem 0.5rem;
+        border-radius: 16px;
+    }
+
+    .oc-node-photo {
+        width: 50px;
+        height: 50px;
+    }
+
+    .oc-node-name {
+        font-size: 0.72rem;
+    }
+
+    .oc-node-details {
+        font-size: 0.64rem;
+        min-height: 24px;
+    }
+
+    .oc-marriage-line {
+        width: 1.5rem;
+    }
+}
