@@ -388,6 +388,12 @@
                 "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
                 "p-rosmawati", "p-mohd-zahari", "p-normalina",
                 "p-norliana", "p-nor-suhaidah"
+            ],
+            childIds: [
+                "c-saadiah-norhidayah", "c-saadiah-naim", "c-saadiah-nurfarhana",
+                "c-saadiah-fitri", "c-saadiah-nuratikah", "c-saadiah-aizat",
+                "c-saadiah-fatinnajwa", "c-saadiah-danielhaikal",
+                "c-saadiah-azimizzat", "c-saadiah-faizaiman"
             ]
         },
         {
@@ -409,13 +415,15 @@
             name: "Salina",
             birthday: "",
             image: "images/default.png",
+            partnerId: "p-nizam",
             parentIds: ["gp-rodiah", "gp-awang-matsidek"],
             siblingIds: [
                 "p-saadiah", "p-fauziah", "p-mohd-jamal",
                 "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
                 "p-rosmawati", "p-mohd-zahari", "p-normalina",
                 "p-norliana", "p-nor-suhaidah"
-            ]
+            ],
+            childIds: ["c-salina-shahira", "c-salina-akmal", "c-salina-ehsan"]
         },
         {
             id: "p-md-yacob",
@@ -428,6 +436,10 @@
                 "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
                 "p-rosmawati", "p-mohd-zahari", "p-normalina",
                 "p-norliana", "p-nor-suhaidah"
+            ],
+            childIds: [
+                "c-yacob-firdaus", "c-yacob-taufiq", "c-yacob-masyitah",
+                "c-yacob-imran", "c-yacob-mustaqim"
             ]
         },
         {
@@ -487,14 +499,20 @@
         {
             id: "p-mohd-zahari",
             name: "Mohd Zahari",
+            fullName: "Mohd Zahari bin Awang",
             birthday: "",
             image: "images/default.png",
+            partnerId: "p-nurfathin-zahari",
             parentIds: ["gp-rodiah", "gp-awang-matsidek"],
             siblingIds: [
                 "p-saadiah", "p-fauziah", "p-salina", "p-mohd-jamal",
                 "p-md-yacob", "p-salmah", "p-mohd-ariffin", "p-mohd-hairi",
                 "p-rosmawati", "p-normalina",
                 "p-norliana", "p-nor-suhaidah"
+            ],
+            childIds: [
+                "c-zahari-amsyar", "c-zahari-uzair", "c-zahari-hani",
+                "c-zahari-athif", "c-zahari-zuhair"
             ]
         },
         {
@@ -554,6 +572,43 @@
             parentIds: ["p-ismail"]
         },
 
+        // ── Spouse records (generation 2 in-laws) ────────────
+
+        // Salina's husband
+        {
+            id: "p-nizam",
+            name: "Nizam",
+            fullName: "Nizam bin Sambuddin",
+            birthday: "",
+            image: "images/default.png",
+            partnerId: "p-salina",
+            childIds: ["c-salina-shahira", "c-salina-akmal", "c-salina-ehsan"]
+        },
+
+        // Mohd Zahari's wife
+        {
+            id: "p-nurfathin-zahari",
+            name: "Nurfathin",
+            fullName: "Nurfathin binti Zulkeplee",
+            birthday: "",
+            image: "images/default.png",
+            partnerId: "p-mohd-zahari",
+            childIds: [
+                "c-zahari-amsyar", "c-zahari-uzair", "c-zahari-hani",
+                "c-zahari-athif", "c-zahari-zuhair"
+            ]
+        },
+
+        // Norhidayah's husband (Saadiah's son-in-law)
+        {
+            id: "p-azizi-norhidayah",
+            name: "Mohd Azizi",
+            fullName: "Mohd Azizi bin Hamzah",
+            birthday: "",
+            image: "images/default.png",
+            partnerId: "c-saadiah-norhidayah",
+            childIds: ["gc-norhidayah-dhia", "gc-norhidayah-iris", "gc-norhidayah-uwais"]
+        },
 
         // ── Children (generation 3) ──────────────────────────
 
@@ -755,6 +810,278 @@
             birthday: "November 1, 2024",
             image: "images/Nadra.png",
             parentIds: ["c-zahiruddin", "c-aina"]
+        },
+
+        // ── Anak Md Yacob ─────────────────────────────────────
+        {
+            id: "c-yacob-firdaus",
+            name: "Muhammad Firdaus",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-md-yacob"],
+            siblingIds: ["c-yacob-taufiq", "c-yacob-masyitah", "c-yacob-imran", "c-yacob-mustaqim"]
+        },
+        {
+            id: "c-yacob-taufiq",
+            name: "Muhammad Taufiq",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-md-yacob"],
+            siblingIds: ["c-yacob-firdaus", "c-yacob-masyitah", "c-yacob-imran", "c-yacob-mustaqim"]
+        },
+        {
+            id: "c-yacob-masyitah",
+            name: "Masyitah",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-md-yacob"],
+            siblingIds: ["c-yacob-firdaus", "c-yacob-taufiq", "c-yacob-imran", "c-yacob-mustaqim"]
+        },
+        {
+            id: "c-yacob-imran",
+            name: "Muhammad Imran",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-md-yacob"],
+            siblingIds: ["c-yacob-firdaus", "c-yacob-taufiq", "c-yacob-masyitah", "c-yacob-mustaqim"]
+        },
+        {
+            id: "c-yacob-mustaqim",
+            name: "Muhammad Mustaqim",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-md-yacob"],
+            siblingIds: ["c-yacob-firdaus", "c-yacob-taufiq", "c-yacob-masyitah", "c-yacob-imran"]
+        },
+
+        // ── Anak Saadiah ──────────────────────────────────────
+        {
+            id: "c-saadiah-norhidayah",
+            name: "Norhidayah",
+            birthday: "",
+            image: "images/default.png",
+            partnerId: "p-azizi-norhidayah",
+            parentIds: ["p-saadiah"],
+            siblingIds: [
+                "c-saadiah-naim", "c-saadiah-nurfarhana", "c-saadiah-fitri",
+                "c-saadiah-nuratikah", "c-saadiah-aizat", "c-saadiah-fatinnajwa",
+                "c-saadiah-danielhaikal", "c-saadiah-azimizzat", "c-saadiah-faizaiman"
+            ],
+            childIds: ["gc-norhidayah-dhia", "gc-norhidayah-iris", "gc-norhidayah-uwais"]
+        },
+        {
+            id: "c-saadiah-naim",
+            name: "Mohd Naim",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-saadiah"],
+            siblingIds: [
+                "c-saadiah-norhidayah", "c-saadiah-nurfarhana", "c-saadiah-fitri",
+                "c-saadiah-nuratikah", "c-saadiah-aizat", "c-saadiah-fatinnajwa",
+                "c-saadiah-danielhaikal", "c-saadiah-azimizzat", "c-saadiah-faizaiman"
+            ]
+        },
+        {
+            id: "c-saadiah-nurfarhana",
+            name: "Nurfarhana",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-saadiah"],
+            siblingIds: [
+                "c-saadiah-norhidayah", "c-saadiah-naim", "c-saadiah-fitri",
+                "c-saadiah-nuratikah", "c-saadiah-aizat", "c-saadiah-fatinnajwa",
+                "c-saadiah-danielhaikal", "c-saadiah-azimizzat", "c-saadiah-faizaiman"
+            ]
+        },
+        {
+            id: "c-saadiah-fitri",
+            name: "Mohd Fitri",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-saadiah"],
+            siblingIds: [
+                "c-saadiah-norhidayah", "c-saadiah-naim", "c-saadiah-nurfarhana",
+                "c-saadiah-nuratikah", "c-saadiah-aizat", "c-saadiah-fatinnajwa",
+                "c-saadiah-danielhaikal", "c-saadiah-azimizzat", "c-saadiah-faizaiman"
+            ]
+        },
+        {
+            id: "c-saadiah-nuratikah",
+            name: "Nuratikah",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-saadiah"],
+            siblingIds: [
+                "c-saadiah-norhidayah", "c-saadiah-naim", "c-saadiah-nurfarhana",
+                "c-saadiah-fitri", "c-saadiah-aizat", "c-saadiah-fatinnajwa",
+                "c-saadiah-danielhaikal", "c-saadiah-azimizzat", "c-saadiah-faizaiman"
+            ]
+        },
+        {
+            id: "c-saadiah-aizat",
+            name: "Muhammad Aizat",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-saadiah"],
+            siblingIds: [
+                "c-saadiah-norhidayah", "c-saadiah-naim", "c-saadiah-nurfarhana",
+                "c-saadiah-fitri", "c-saadiah-nuratikah", "c-saadiah-fatinnajwa",
+                "c-saadiah-danielhaikal", "c-saadiah-azimizzat", "c-saadiah-faizaiman"
+            ]
+        },
+        {
+            id: "c-saadiah-fatinnajwa",
+            name: "Nur Fatin Najwa",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-saadiah"],
+            siblingIds: [
+                "c-saadiah-norhidayah", "c-saadiah-naim", "c-saadiah-nurfarhana",
+                "c-saadiah-fitri", "c-saadiah-nuratikah", "c-saadiah-aizat",
+                "c-saadiah-danielhaikal", "c-saadiah-azimizzat", "c-saadiah-faizaiman"
+            ]
+        },
+        {
+            id: "c-saadiah-danielhaikal",
+            name: "Muhammad Daniel Haikal",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-saadiah"],
+            siblingIds: [
+                "c-saadiah-norhidayah", "c-saadiah-naim", "c-saadiah-nurfarhana",
+                "c-saadiah-fitri", "c-saadiah-nuratikah", "c-saadiah-aizat",
+                "c-saadiah-fatinnajwa", "c-saadiah-azimizzat", "c-saadiah-faizaiman"
+            ]
+        },
+        {
+            id: "c-saadiah-azimizzat",
+            name: "Muhammad Azim Izzat",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-saadiah"],
+            siblingIds: [
+                "c-saadiah-norhidayah", "c-saadiah-naim", "c-saadiah-nurfarhana",
+                "c-saadiah-fitri", "c-saadiah-nuratikah", "c-saadiah-aizat",
+                "c-saadiah-fatinnajwa", "c-saadiah-danielhaikal", "c-saadiah-faizaiman"
+            ]
+        },
+        {
+            id: "c-saadiah-faizaiman",
+            name: "Muhammad Faiz Aiman",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-saadiah"],
+            siblingIds: [
+                "c-saadiah-norhidayah", "c-saadiah-naim", "c-saadiah-nurfarhana",
+                "c-saadiah-fitri", "c-saadiah-nuratikah", "c-saadiah-aizat",
+                "c-saadiah-fatinnajwa", "c-saadiah-danielhaikal", "c-saadiah-azimizzat"
+            ]
+        },
+
+        // Norhidayah's children (cucu Saadiah)
+        {
+            id: "gc-norhidayah-dhia",
+            name: "Dhia Izz Zara",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["c-saadiah-norhidayah", "p-azizi-norhidayah"]
+        },
+        {
+            id: "gc-norhidayah-iris",
+            name: "Iris Maisarah",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["c-saadiah-norhidayah", "p-azizi-norhidayah"]
+        },
+        {
+            id: "gc-norhidayah-uwais",
+            name: "Uwais Al-Qarni",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["c-saadiah-norhidayah", "p-azizi-norhidayah"]
+        },
+
+        // ── Anak Salina ───────────────────────────────────────
+        {
+            id: "c-salina-shahira",
+            name: "Shahira",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-salina", "p-nizam"],
+            siblingIds: ["c-salina-akmal", "c-salina-ehsan"]
+        },
+        {
+            id: "c-salina-akmal",
+            name: "Akmal",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-salina", "p-nizam"],
+            siblingIds: ["c-salina-shahira", "c-salina-ehsan"]
+        },
+        {
+            id: "c-salina-ehsan",
+            name: "Ehsan Lufti",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-salina", "p-nizam"],
+            siblingIds: ["c-salina-shahira", "c-salina-akmal"]
+        },
+
+        // ── Anak Mohd Zahari ──────────────────────────────────
+        {
+            id: "c-zahari-amsyar",
+            name: "Muhammad Amsyar Zharif",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-mohd-zahari", "p-nurfathin-zahari"],
+            siblingIds: [
+                "c-zahari-uzair", "c-zahari-hani",
+                "c-zahari-athif", "c-zahari-zuhair"
+            ]
+        },
+        {
+            id: "c-zahari-uzair",
+            name: "Muhammad Uzair Zharif",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-mohd-zahari", "p-nurfathin-zahari"],
+            siblingIds: [
+                "c-zahari-amsyar", "c-zahari-hani",
+                "c-zahari-athif", "c-zahari-zuhair"
+            ]
+        },
+        {
+            id: "c-zahari-hani",
+            name: "Nur Hani Zulaikha",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-mohd-zahari", "p-nurfathin-zahari"],
+            siblingIds: [
+                "c-zahari-amsyar", "c-zahari-uzair",
+                "c-zahari-athif", "c-zahari-zuhair"
+            ]
+        },
+        {
+            id: "c-zahari-athif",
+            name: "Muhammad Athif Zharif",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-mohd-zahari", "p-nurfathin-zahari"],
+            siblingIds: [
+                "c-zahari-amsyar", "c-zahari-uzair",
+                "c-zahari-hani", "c-zahari-zuhair"
+            ]
+        },
+        {
+            id: "c-zahari-zuhair",
+            name: "Muhammad Zuhair Zharif",
+            birthday: "",
+            image: "images/default.png",
+            parentIds: ["p-mohd-zahari", "p-nurfathin-zahari"],
+            siblingIds: [
+                "c-zahari-amsyar", "c-zahari-uzair",
+                "c-zahari-hani", "c-zahari-athif"
+            ]
         }
     ];
 
