@@ -68,14 +68,56 @@
 
     /**
      * Read a File object and return its data-URL representation.
+     * Automatically compresses images to prevent "Failed to fetch" (payload too large) errors.
      */
     function fileToDataUrl(file) {
         return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(String(reader.result || ""));
-            reader.onerror = () =>
-                reject(reader.error || new Error("Unable to read the file."));
-            reader.readAsDataURL(file);
+            if (!file.type.startsWith("image/")) {
+                // Return videos or other files directly
+                const reader = new FileReader();
+                reader.onload = () => resolve(String(reader.result || ""));
+                reader.onerror = () => reject(reader.error || new Error("Unable to read the file."));
+                reader.readAsDataURL(file);
+                return;
+            }
+
+            const img = new Image();
+            const objectUrl = URL.createObjectURL(file);
+            
+            img.onload = () => {
+                URL.revokeObjectURL(objectUrl);
+                
+                // Max dimensions to prevent huge Base64 payloads
+                const MAX_WIDTH = 800;
+                const MAX_HEIGHT = 800;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT;
+                    }
+                }
+
+                const canvas = document.createElement("canvas");
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Compress to 70% quality JPEG
+                resolve(canvas.toDataURL("image/jpeg", 0.7));
+            };
+            
+            img.onerror = () => reject(new Error("Failed to process image"));
+            img.src = objectUrl;
         });
     }
 

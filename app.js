@@ -453,8 +453,13 @@
                     wrapper.appendChild(divider);
                 }
             });
-
             this.container.appendChild(wrapper);
+
+            // Auto-scroll to center so the parents are immediately visible
+            setTimeout(() => {
+                const scrollLeft = (this.container.scrollWidth - this.container.clientWidth) / 2;
+                if (scrollLeft > 0) this.container.scrollLeft = scrollLeft;
+            }, 10);
         }
 
         _render(viewData, showBack) {
@@ -474,6 +479,12 @@
 
             this._appendOCView(chart, viewData);
             this.container.appendChild(chart);
+
+            // Auto-scroll to center so the parents are immediately visible
+            setTimeout(() => {
+                const scrollLeft = (this.container.scrollWidth - this.container.clientWidth) / 2;
+                if (scrollLeft > 0) this.container.scrollLeft = scrollLeft;
+            }, 10);
         }
 
         /**
