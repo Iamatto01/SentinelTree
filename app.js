@@ -265,15 +265,23 @@
 
         /**
          * Navigate up to a person's parents.
+         * Uses multiAncestorView to detect half-siblings and render
+         * multiple sub-trees if needed.
          */
         navigateToAncestors(personId) {
             this._navStack.push({
                 parentIds: this._currentParentIds || this.registry.rootParentIds
             });
-            const view = this.registry.ancestorView(personId);
+
+            const views = this.registry.multiAncestorView(personId);
             const person = this.registry.getById(personId);
             this._currentParentIds = person ? person.parentIds || [] : [];
-            this._render(view, true);
+
+            if (views.length > 1) {
+                this._renderMultiTree(views);
+            } else {
+                this._render(views[0], true);
+            }
         }
 
         /**
@@ -291,6 +299,119 @@
         }
 
         // ── Internal ────────────────────────────────────────
+
+        /**
+         * Render multiple sub-trees on one page (for half-siblings).
+         *
+         * @param {{ parents: object[], children: object[], label: string }[]} views
+         */
+        _renderMultiTree(views) {
+            this.container.innerHTML = "";
+
+            // Go Back button
+            const backBtn = document.createElement("button");
+            backBtn.textContent = "Go Back";
+            backBtn.classList.add("go-back");
+            backBtn.addEventListener("click", () => this.goBack());
+            this.container.appendChild(backBtn);
+
+            // Multi-tree wrapper
+            const wrapper = document.createElement("div");
+            wrapper.classList.add("multi-tree-wrapper");
+
+            views.forEach((view, index) => {
+                // Sub-tree container
+                const subTree = document.createElement("div");
+                subTree.classList.add("sub-tree");
+
+                // Label
+                if (view.label) {
+                    const label = document.createElement("div");
+                    label.classList.add("sub-tree-label");
+
+                    const icon = document.createElement("span");
+                    icon.classList.add("sub-tree-icon");
+                    icon.textContent = "🌳";
+                    label.appendChild(icon);
+
+                    const text = document.createElement("span");
+                    text.textContent = view.label;
+                    label.appendChild(text);
+
+                    subTree.appendChild(label);
+                }
+
+                // Parents row
+                if (view.parents && view.parents.length > 0) {
+                    const row = document.createElement("div");
+                    row.classList.add("family-level");
+
+                    const renderedIds = new Set();
+
+                    view.parents.forEach((parent) => {
+                        if (renderedIds.has(parent.id)) return;
+                        renderedIds.add(parent.id);
+
+                        const bubble = this._createBubble(parent, "parent");
+                        bubble.addEventListener("click", () => {
+                            const p = this.registry.getById(parent.id);
+                            if (p && p.parentIds && p.parentIds.length > 0) {
+                                this.navigateToAncestors(parent.id);
+                            }
+                        });
+                        row.appendChild(bubble);
+
+                        if (parent.partner && !renderedIds.has(parent.partner.id)) {
+                            renderedIds.add(parent.partner.id);
+                            const partnerBubble = this._createBubble(parent.partner, "parent");
+                            partnerBubble.addEventListener("click", () => {
+                                const pt = this.registry.getById(parent.partner.id);
+                                if (pt && pt.parentIds && pt.parentIds.length > 0) {
+                                    this.navigateToAncestors(parent.partner.id);
+                                }
+                            });
+                            row.appendChild(partnerBubble);
+                        }
+                    });
+
+                    subTree.appendChild(row);
+
+                    // Connector line
+                    if (view.children && view.children.length > 0) {
+                        const connector = document.createElement("div");
+                        connector.classList.add("tree-connector");
+                        subTree.appendChild(connector);
+                    }
+                }
+
+                // Children row
+                if (view.children && view.children.length > 0) {
+                    const row = document.createElement("div");
+                    row.classList.add("family-level");
+
+                    view.children.forEach((child) => {
+                        const bubble = this._createBubble(child, "child");
+                        bubble.addEventListener("click", () => {
+                            this.navigateIntoBranch(child.id);
+                        });
+                        row.appendChild(bubble);
+                    });
+
+                    subTree.appendChild(row);
+                }
+
+                wrapper.appendChild(subTree);
+
+                // Divider between sub-trees (not after the last one)
+                if (index < views.length - 1) {
+                    const divider = document.createElement("div");
+                    divider.classList.add("sub-tree-divider");
+                    wrapper.appendChild(divider);
+                }
+            });
+
+            this.container.appendChild(wrapper);
+        }
 
         _render(viewData, showBack) {
             this.container.innerHTML = "";

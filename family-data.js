@@ -916,6 +916,140 @@
         }
 
         /**
+         * Build multiple tree-views for a person's ancestor level,
+         * grouping children by their unique parent-pair.
+         *
+         * This handles half-siblings: when a parent has children with
+         * multiple partners, each partner-group becomes its own sub-tree.
+         *
+         * @param {string} personId
+         * @returns {{ parents: object[], children: object[], label: string }[]}
+         */
+        multiAncestorView(personId) {
+            const person = this.getById(personId);
+            if (!person) return [{ parents: [], children: [], label: "" }];
+
+            const parentObjs = this.getParents(personId);
+            if (parentObjs.length === 0) return [{ parents: [], children: [], label: "" }];
+
+            const enrich = (p) => {
+                const copy = { ...p };
+                if (copy.partnerId) {
+                    copy.partner = this.getById(copy.partnerId) || null;
+                }
+                return copy;
+            };
+
+            // Collect ALL children from ALL parents (not just the pair)
+            const allChildIds = new Set();
+            parentObjs.forEach((p) => {
+                (p.childIds || []).forEach((cid) => allChildIds.add(cid));
+            });
+
+            // Also include children from each parent's OTHER partners
+            parentObjs.forEach((p) => {
+                // Check all people who list this parent in their parentIds
+                this.getAll().forEach((candidate) => {
+                    if (candidate.parentIds && candidate.parentIds.includes(p.id)) {
+                        allChildIds.add(candidate.id);
+                    }
+                });
+            });
+
+            // Group children by their parent-pair key (sorted pair of parentIds)
+            const groups = new Map(); // key: "parentA|parentB" → { parentIds: Set, childIds: [] }
+
+            allChildIds.forEach((cid) => {
+                const child = this.getById(cid);
+                if (!child || !child.parentIds) return;
+
+                const key = [...child.parentIds].sort().join("|");
+                if (!groups.has(key)) {
+                    groups.set(key, { parentIdSet: new Set(child.parentIds), childIds: [] });
+                }
+                groups.get(key).childIds.push(cid);
+            });
+
+            // If only one group, no half-siblings — return single view
+            if (groups.size <= 1) {
+                const single = this.ancestorView(personId);
+                return [{ ...single, label: "" }];
+            }
+
+            // Determine the focal person's own parent-pair key
+            const focalKey = person.parentIds ? [...person.parentIds].sort().join("|") : "";
+
+            // Build a view for each group
+            const views = [];
+            for (const [key, group] of groups) {
+                const gpObjs = Array.from(group.parentIdSet)
+                    .map((pid) => this.getById(pid))
+                    .filter(Boolean);
+
+                const children = group.childIds
+                    .map((cid) => this.getById(cid))
+                    .filter(Boolean)
+                    .map(enrich);
+
+                // Derive label based on how this group relates to the focal person's parents
+                let label = "";
+                if (key === focalKey) {
+                    label = "Satu Emak & Ayah (Adik-beradik Kandung)";
+                } else {
+                    // Compare parent sets
+                    const focalParents = new Set(person.parentIds || []);
+                    const groupParents = group.parentIdSet;
+
+                    let sharedMother = false;
+                    let sharedFather = false;
+
+                    for (const pid of groupParents) {
+                        if (focalParents.has(pid)) {
+                            const p = this.getById(pid);
+                            // Simple heuristic: check name patterns or just check role
+                            // We use the parent's gender/role — if they are in ggp-*-mother or wife patterns
+                            // For now, compare with the focal person's parentIds
+                            // Parent at index 0 = father, index 1 = mother (by convention in this data)
+                            if (person.parentIds && person.parentIds[0] === pid) {
+                                sharedFather = true;
+                            } else if (person.parentIds && person.parentIds[1] === pid) {
+                                sharedMother = true;
+                            } else {
+                                // Check if appears in either position
+                                sharedFather = true; // fallback
+                            }
+                        }
+                    }
+
+                    if (sharedMother && !sharedFather) {
+                        label = "Satu Emak, Lain Ayah (Adik-beradik Seibu)";
+                    } else if (sharedFather && !sharedMother) {
+                        label = "Satu Ayah, Lain Emak (Adik-beradik Sebapa)";
+                    } else {
+                        label = "Adik-beradik Tiri";
+                    }
+                }
+
+                views.push({
+                    parents: gpObjs.map(enrich),
+                    children,
+                    label
+                });
+            }
+
+            // Sort: focal person's group first, then others
+            views.sort((a, b) => {
+                const aKey = a.parents.map((p) => p.id).sort().join("|");
+                const bKey = b.parents.map((p) => p.id).sort().join("|");
+                if (aKey === focalKey) return -1;
+                if (bKey === focalKey) return 1;
+                return 0;
+            });
+
+            return views;
+        }
+
+        /**
          * Case-insensitive substring search across names.
          */
         search(query) {
