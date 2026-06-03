@@ -1998,7 +1998,7 @@ body.night .sub-tree-divider {
 /* All knot elements are flex containers */
 [data-knot] {
     display: flex;
-    flex-grow: 1;
+    flex: 1 1 0%; /* Equal width distribution regardless of content */
     justify-content: center;
     position: relative;
     z-index: 1;
@@ -2192,7 +2192,7 @@ body.night [data-symbol].oc-node:hover {
     opacity: 0.7;
 }
 
-[data-symbol].oc-node--deceased .oc-node-btn {
+[data-symbol].oc-node--deceased .oc-node-details {
     filter: grayscale(100%);
     opacity: 0.8;
 }
