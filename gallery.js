@@ -66,50 +66,145 @@ document.addEventListener("DOMContentLoaded", () => {
         emptyState.style.display = "none";
         galleryContainer.innerHTML = "";
 
-        // Group by event_name
-        const grouped = images.reduce((acc, img) => {
-            const event = img.event_name || "General";
-            if (!acc[event]) acc[event] = [];
-            acc[event].push(img);
-            return acc;
-        }, {});
+        const scatterContainer = document.createElement("div");
+        scatterContainer.className = "gallery-scatter-container";
 
-        const events = Object.keys(grouped).sort();
+        // Optional central quote (like the demo)
+        const quote = document.createElement("p");
+        quote.className = "gallery-quote";
+        quote.innerHTML = "Family memories,<br>scattered in time.";
+        scatterContainer.appendChild(quote);
 
-        events.forEach((eventName) => {
-            const eventDiv = document.createElement("div");
-            eventDiv.className = "gallery-event";
-            eventDiv.setAttribute("data-category", eventName);
+        // Pre-defined scatter regions to spread them out roughly
+        // If there are many images, they will overlap, which is fine and intended.
+        images.forEach((imgData, index) => {
+            const card = document.createElement("div");
+            card.className = "draggable-card gallery-event"; 
+            card.setAttribute("data-category", imgData.event_name || "General");
 
-            const title = document.createElement("h2");
-            title.textContent = eventName;
-            eventDiv.appendChild(title);
+            // Random scatter layout
+            const top = 10 + Math.random() * 60; // 10% to 70%
+            const left = 5 + Math.random() * 70; // 5% to 75%
+            const rot = -15 + Math.random() * 30; // -15deg to 15deg
+            
+            card.style.top = `${top}%`;
+            card.style.left = `${left}%`;
+            card.style.transform = `translate3d(0px, 0px, 0) rotate(${rot}deg) rotateX(0deg) rotateY(0deg) scale(1)`;
 
-            const scrollDiv = document.createElement("div");
-            scrollDiv.className = "gallery-scroll";
+            let media;
+            if (U.isVideoUrl(imgData.image_url)) {
+                media = document.createElement("video");
+                media.controls = true;
+                media.preload = "metadata";
+            } else {
+                media = document.createElement("img");
+                media.alt = imgData.event_name || "Memory";
+                media.loading = "lazy";
+            }
+            media.src = imgData.image_url;
+            card.appendChild(media);
 
-            grouped[eventName].forEach((imgData) => {
-                let media;
-                if (U.isVideoUrl(imgData.image_url)) {
-                    media = document.createElement("video");
-                    media.controls = true;
-                    media.preload = "metadata";
-                } else {
-                    media = document.createElement("img");
-                    media.alt = eventName;
-                    media.loading = "lazy"; // performance: lazy-load images
-                }
-                media.src = imgData.image_url;
-                media.title = eventName;
-                media.style.objectFit = "cover";
-                scrollDiv.appendChild(media);
-            });
+            const title = document.createElement("h3");
+            title.textContent = imgData.event_name || "Memory";
+            card.appendChild(title);
 
-            eventDiv.appendChild(scrollDiv);
-            galleryContainer.appendChild(eventDiv);
+            initDraggableCard(card, rot);
+            scatterContainer.appendChild(card);
         });
 
+        galleryContainer.appendChild(scatterContainer);
+
         if (sortSelect) applySort(sortSelect.value);
+    }
+
+    function initDraggableCard(card, baseRotate) {
+        let isDragging = false;
+        let startX, startY;
+        let currentX = 0, currentY = 0;
+
+        const glare = document.createElement("div");
+        glare.className = "draggable-card-glare";
+        card.appendChild(glare);
+
+        let lastMouseX = 0, lastMouseY = 0;
+        let velocityX = 0, velocityY = 0;
+        let lastTime = Date.now();
+
+        card.addEventListener("pointerdown", (e) => {
+            isDragging = true;
+            startX = e.clientX - currentX;
+            startY = e.clientY - currentY;
+            card.style.zIndex = "100";
+            card.style.transition = "none";
+            document.body.style.cursor = "grabbing";
+            card.setPointerCapture(e.pointerId);
+        });
+
+        card.addEventListener("pointermove", (e) => {
+            if (!isDragging) {
+                // 3D Tilt on hover
+                const rect = card.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                const deltaX = Math.max(-300, Math.min(300, e.clientX - centerX));
+                const deltaY = Math.max(-300, Math.min(300, e.clientY - centerY));
+                
+                const rotateX = -(deltaY / 300) * 25;
+                const rotateY = (deltaX / 300) * 25;
+                const glareOp = Math.max(0, 0.2 - Math.abs(deltaX / 300) * 0.2);
+                
+                card.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) rotate(${baseRotate}deg) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+                glare.style.opacity = glareOp.toString();
+                return;
+            }
+
+            const now = Date.now();
+            const dt = Math.max(1, now - lastTime);
+            
+            velocityX = (e.clientX - lastMouseX) / dt;
+            velocityY = (e.clientY - lastMouseY) / dt;
+
+            currentX = e.clientX - startX;
+            currentY = e.clientY - startY;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+            lastTime = now;
+
+            // Apply 3D tilt while dragging
+            const rect = card.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const deltaX = Math.max(-300, Math.min(300, e.clientX - centerX));
+            const deltaY = Math.max(-300, Math.min(300, e.clientY - centerY));
+            const rotateX = -(deltaY / 300) * 25;
+            const rotateY = (deltaX / 300) * 25;
+
+            card.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) rotate(${baseRotate}deg) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+        });
+
+        card.addEventListener("pointerleave", () => {
+            if (isDragging) return;
+            card.style.transition = "transform 0.5s cubic-bezier(0.2, 0, 0, 1)";
+            card.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) rotate(${baseRotate}deg) rotateX(0deg) rotateY(0deg) scale(1)`;
+            glare.style.opacity = "0";
+        });
+
+        card.addEventListener("pointerup", (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            document.body.style.cursor = "default";
+            card.releasePointerCapture(e.pointerId);
+            card.style.zIndex = "10";
+
+            // Momentum throw
+            currentX += velocityX * 120;
+            currentY += velocityY * 120;
+
+            card.style.transition = "transform 0.8s cubic-bezier(0.2, 0, 0, 1)";
+            card.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) rotate(${baseRotate}deg) rotateX(0deg) rotateY(0deg) scale(1)`;
+            glare.style.opacity = "0";
+        });
     }
 
     function updateSortDropdowns(images) {

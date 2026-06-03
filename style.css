@@ -1825,6 +1825,100 @@ body.night .tree-connector::after {
   }
 }
 
+/* ═══════════════════════════════════════════════════════
+   DRAGGABLE SCATTER GALLERY
+   ═══════════════════════════════════════════════════════ */
+
+.gallery-scatter-container {
+    position: relative;
+    display: flex;
+    min-height: 80vh;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    perspective: 3000px; /* Crucial for 3D effect */
+    background: transparent;
+    border-radius: 12px;
+}
+
+.gallery-quote {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -150%);
+    max-width: 400px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #94a3b8;
+    z-index: 0;
+}
+
+body.night .gallery-quote {
+    color: #334155;
+}
+
+.draggable-card {
+    position: absolute;
+    min-height: 24rem;
+    width: 20rem;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    background-color: #f5f5f5;
+    padding: 1.5rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    /* Performance for 3D transforms */
+    will-change: transform;
+    transform-style: preserve-3d;
+    cursor: grab;
+    z-index: 10;
+    user-select: none;
+}
+
+.draggable-card:active {
+    cursor: grabbing;
+}
+
+body.night .draggable-card {
+    background-color: #171717;
+}
+
+.draggable-card img, 
+.draggable-card video {
+    pointer-events: none;
+    position: relative;
+    z-index: 10;
+    height: 20rem;
+    width: 20rem;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.draggable-card h3 {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #404040;
+    pointer-events: none;
+}
+
+body.night .draggable-card h3 {
+    color: #d4d4d4;
+}
+
+.draggable-card-glare {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    background: white;
+    opacity: 0;
+    mix-blend-mode: overlay;
+    z-index: 20;
+    transition: opacity 0.1s;
+}
+
 /* ── Utility classes ─────────────────────────────── */
 
 .hidden {
@@ -1836,6 +1930,51 @@ body.night .tree-connector::after {
     display: flex !important;
     align-items: center;
     justify-content: center;
+}
+
+/* ── Multi-tree layout (half-siblings) ── */
+.multi-tree-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: max-content;
+    margin: 0 auto;
+    gap: 3rem;
+}
+
+.sub-tree {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: max-content;
+    margin: 0 auto;
+}
+
+.sub-tree-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    color: #0e7490;
+    margin-bottom: 1.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(14, 116, 144, 0.08);
+    border-radius: 999px;
+}
+body.night .sub-tree-label {
+    color: #5eead4;
+    background: rgba(94, 234, 212, 0.12);
+}
+
+.sub-tree-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(14, 116, 144, 0.2), transparent);
+    margin: 1rem 0;
+}
+body.night .sub-tree-divider {
+    background: linear-gradient(90deg, transparent, rgba(94, 234, 212, 0.2), transparent);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -2051,6 +2190,11 @@ body.night [data-symbol].oc-node:hover {
 [data-symbol].oc-node--deceased .oc-node-photo {
     filter: grayscale(100%) contrast(0.9) brightness(0.9);
     opacity: 0.7;
+}
+
+[data-symbol].oc-node--deceased .oc-node-btn {
+    filter: grayscale(100%);
+    opacity: 0.8;
 }
 
 /* Parent node — warm orange accent */

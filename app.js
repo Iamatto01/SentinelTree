@@ -339,24 +339,6 @@
                         }
                     });
                     parentsRow.appendChild(node);
-
-                    // Marriage connector + partner
-                    if (parent.partner && !renderedIds.has(parent.partner.id)) {
-                        renderedIds.add(parent.partner.id);
-
-                        const marriageLine = document.createElement("div");
-                        marriageLine.classList.add("oc-marriage-line");
-                        parentsRow.appendChild(marriageLine);
-
-                        const partnerNode = this._createNode(parent.partner, "parent");
-                        partnerNode.addEventListener("click", () => {
-                            const pt = this.registry.getById(parent.partner.id);
-                            if (pt && pt.parentIds && pt.parentIds.length > 0) {
-                                this.navigateToAncestors(parent.partner.id);
-                            }
-                        });
-                        parentsRow.appendChild(partnerNode);
-                    }
                 });
 
                 parentsSection.appendChild(parentsRow);
@@ -509,8 +491,13 @@
             node.setAttribute("tabindex", "0");
             node.setAttribute("role", "button");
 
+            let imageSrc = person.image || person.imageUrl;
+            if (!imageSrc || imageSrc === "images/default.png") {
+                imageSrc = U.FALLBACK_AVATAR;
+            }
+
             node.innerHTML = `
-                <img src="${U.escapeHtml(person.image || person.imageUrl || U.FALLBACK_AVATAR)}"
+                <img src="${U.escapeHtml(imageSrc)}"
                      alt="${U.escapeHtml(person.name)}"
                      class="oc-node-photo">
                 <div class="oc-node-name">${U.escapeHtml(person.name)}</div>
